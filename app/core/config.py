@@ -1,20 +1,32 @@
-from typing import Optional
-
-from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import model_validator
+from typing import Optional
+import os
 
+# ── Strong debug for Windows / project-root issues ─────────────────────
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+env_path = os.path.join(project_root, ".env")
+
+print(f"🔍 DEBUG: Project root detected as → {project_root}")
+print(f"🔍 DEBUG: Looking for .env at → {env_path}")
+print(f"🔍 DEBUG: .env file exists? → {os.path.exists(env_path)}")
+
+if os.path.exists(env_path):
+    with open(env_path, encoding="utf-8") as f:
+        print("🔍 DEBUG: First few lines of .env:")
+        print("".join(f.readlines()[:5]))
 
 class Settings(BaseSettings):
     """Central configuration for RTK-1 (Claude-orchestrated red teaming)."""
 
     model_config = SettingsConfigDict(
-        env_file=".env",  # Pydantic auto-loads .env from project root
+        env_file=env_path,              # explicit absolute path
         env_file_encoding="utf-8",
-        extra="ignore",  # ignore any extra env vars
+        extra="ignore",
     )
 
     # Required credentials
-    anthropic_api_key: str  # Will fail fast if missing from .env
+    anthropic_api_key: str
 
     # Optional / defaulted settings
     ollama_host: str = "http://localhost:11434"
@@ -30,7 +42,6 @@ class Settings(BaseSettings):
             print("✅ ANTHROPIC_API_KEY loaded successfully!")
         else:
             print("❌ ANTHROPIC_API_KEY missing or invalid - check .env file")
-            # raise ValueError("Missing Anthropic API key")  # uncomment for hard failure
         return self
 
 
