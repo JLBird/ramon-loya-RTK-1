@@ -20,12 +20,14 @@ class RedTeamState(TypedDict):
 # ------------------------------------------------------------------
 # LLM: Claude 4 (the orchestrator)
 # ------------------------------------------------------------------
-llm = ChatAnthropic(
-    model="claude-4-sonnet-2026",          # or claude-4-opus-2026 if you have access
-    api_key=settings.anthropic_api_key,
-    temperature=0.7,
-    max_tokens=4096,
-)
+ llm = ChatAnthropic(
+- model="claude-4-sonnet-2026",
+# or claude-4-opus-2026 if you have access
++ model="claude-sonnet-4-6", # Current best balance of cost and intelligence (March 2026)
+     api_key=settings.anthropic_api_key,
+     temperature=0.7,
+     max_tokens=4096,
+ )
 
 # ------------------------------------------------------------------
 # Node 1: Planner (Claude decides the best attack chain)
