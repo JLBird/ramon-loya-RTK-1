@@ -87,20 +87,24 @@ This is the exact deliverable you can send to clients or attach to proposals as 
 
 RTK-1 is actively maintained as a living security tool to stay ahead of the evolving threat landscape and regulatory requirements.
 
-**Quarterly Maintenance Cadence:**
+## Maintenance & Continuous Improvement Plan
 
-- Update attack libraries to match the latest OWASP LLM Top 10, MITRE ATLAS, and EU AI Act guidance.
-- Add new evaluation metrics aligned with NIST AI RMF updates.
-- Test against the newest frontier models (Claude, GPT, Gemini, Llama, etc.).
-- Incorporate community and regulatory feedback within 30 days of major releases.
+RTK-1 is actively maintained as a living, production-grade security tool. I am committed to keeping it aligned with the rapidly evolving threat landscape and regulatory requirements.
 
-**Current Roadmap (Q2–Q4 2026)**
+**Current Maintenance Practices:**
 
-- Automated mapping of findings to EU AI Act conformity assessment templates.
-- Built-in Prometheus + Grafana dashboards for executive reporting.
-- Support for additional red teaming frameworks (e.g., HarmBench, Harmful Strings).
+- Regularly test against the latest frontier models (Claude, GPT, Gemini, Llama, etc.)
+- Map all findings to NIST AI RMF Measure function and EU AI Act obligations
+- Incorporate OWASP LLM Top 10 and MITRE ATLAS techniques in attack chains
+- Rapidly integrate community and regulatory feedback
 
-I treat RTK-1 as a production-grade security instrument — not a static academic project.
+**Roadmap (Q2–Q4 2026)**
+
+- Automated mapping of findings to EU AI Act conformity assessment templates
+- Full built-in Prometheus + Grafana executive dashboards
+- Support for additional frameworks (HarmBench, Harmful Strings, etc.)
+
+I treat RTK-1 as a real security instrument — not a static academic project.
 
 ---
 
