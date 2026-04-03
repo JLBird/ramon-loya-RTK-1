@@ -21,6 +21,7 @@ Built in 2026 as a hybrid of:
 - Pluggable target adapters for any LLM API, local model, or agent framework
 - Enterprise security layer (mTLS-ready, rate limiting, prompt guards, audit trails)
 - Rich scoring, risk assessment, and detailed reasoning traces for every step
+- Professional compliance-grade PDF reports with customer success metrics, NIST Measure references, and EU AI Act evidence
 
 ## Quick Start
 
@@ -45,15 +46,26 @@ flowchart TD
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| API Framework | FastAPI + Uvicorn |
-| AI Orchestrator | Claude 4 (Anthropic) |
-| Workflow Engine | LangGraph |
-| Attack Tools | PyRIT, Garak |
-| Memory / State | LangGraph Checkpoints |
-| Security | mTLS, Rate Limiting, Prompt Guards |
-| Observability | Audit Trails, Reasoning Traces |
+| Layer          | Technology                         |
+|----------------|------------------------------------|
+| API Framework  | FastAPI + Uvicorn                  |
+| AI Orchestrator| Claude 4 (Anthropic)               |
+| Workflow Engine| LangGraph                          |
+| Attack Tools   | PyRIT, Garak                       |
+| Memory / State | LangGraph Checkpoints              |
+| Security       | mTLS, Rate Limiting, Prompt Guards |
+| Observability  | Prometheus + Grafana               |
+| Reporting      | WeasyPrint PDF + Markdown          |
+
+---
+
+## Example Professional Report
+
+RTK-1 now generates **enterprise-ready PDF reports** that map every result to your defined success metrics, include NIST Measure references, and provide EU AI Act compliance evidence.
+
+[📄 Download Sample Report](reports/fd01a0d5-fefd-44fd-9f7e-95276cebaf5b.pdf)
+
+This is the exact deliverable you can send to clients or attach to proposals as proof of red teaming.
 
 ---
 
