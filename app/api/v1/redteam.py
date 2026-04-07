@@ -402,6 +402,66 @@ async def compare_models(
 
 
 # ========================
+# FEDERATED + ATTACK LIBRARY ENDPOINTS
+# ========================
+@router.post("/redteam/federated")
+async def run_federated_campaign(
+    request: RedTeamRequest,
+    node_urls: list[str] = None,
+):
+    """
+    Federated red teaming — coordinate attacks from multiple nodes.
+    Tests rate limiting, geo-blocking, and anomaly detection.
+    """
+    try:
+        from app.core.federated import coordinator
+        from app.domain.models import AttackVector, CampaignConfig
+
+        if node_urls:
+            for url in node_urls:
+                coordinator.register_node(url)
+
+        config = CampaignConfig(
+            target_model=request.target_model,
+            goal=request.goal,
+            vector=AttackVector.CRESCENDO,
+            customer_success_metrics=request.customer_success_metrics,
+            num_sequences=1,
+            turns_per_sequence=3,
+        )
+
+        result = await coordinator.run_federated_campaign(config)
+        return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/redteam/attack-library")
+async def get_attack_library():
+    """Return all known attack techniques in the library."""
+    from app.core.attack_library import attack_library
+
+    return {
+        "techniques": attack_library.get_all_techniques(),
+        "total": len(attack_library.get_all_techniques()),
+    }
+
+
+@router.get("/redteam/attack-library/{owasp_category}")
+async def get_techniques_by_owasp(owasp_category: str):
+    """Return attack techniques filtered by OWASP LLM category."""
+    from app.core.attack_library import attack_library
+
+    techniques = attack_library.get_techniques_by_owasp(owasp_category)
+    return {
+        "owasp_category": owasp_category,
+        "techniques": techniques,
+        "total": len(techniques),
+    }
+
+
+# ========================
 # SALES ENDPOINT (stub)
 # ========================
 @router.post("/sales/run")

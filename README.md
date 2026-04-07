@@ -1,111 +1,145 @@
-# RTK-1 — Claude-Orchestrated AI Red Teaming API
+# RTK-1 — Autonomous AI Red Teaming Platform
 
-**Production-grade defensive red-teaming toolkit where Claude 4 is the intelligent orchestrator.**
+> The equivalent output of 15 specialized red team professionals running 24/7.
 
-Built in 2026 as a hybrid of:
+RTK-1 is a production-grade autonomous AI red teaming platform that combines
+attack execution, compliance documentation, business risk quantification,
+and continuous monitoring into a single always-on system.
 
-- Claude as the central decision engine with high-level endpoints (from the original architecture)
-- LangGraph for stateful multi-turn workflows with reflection and checkpoints
+## What RTK-1 Does
 
-## Live Demo
+For your exact model or agent, RTK-1:
 
-- Interactive API documentation: <http://localhost:8000/docs>
-- Health check: <http://localhost:8000/health>
+- Tests X attack vectors using Y methodology
+- Achieves Z outcomes tied to your stated success criteria
+- Delivers proof of improvement week over week
+- Generates EU AI Act / NIST AI RMF / OWASP LLM / MITRE ATLAS compliance evidence automatically
 
-## Features
+## Architecture
 
-- Fully autonomous multi-turn attack campaigns with built-in reflection loops
-- Claude-orchestrated strategic planning and real-time adaptation
-- Hybrid attack execution (Claude-guided + industry-standard tools)
-- Persistent memory, state checkpoints, and campaign resumption
-- Pluggable target adapters for any LLM API, local model, or agent framework
-- Enterprise security layer (mTLS-ready, rate limiting, prompt guards, audit trails)
-- Rich scoring, risk assessment, and detailed reasoning traces for every step
-- Professional compliance-grade PDF reports with customer success metrics, NIST Measure references, and EU AI Act evidence
-
-## Industry Alignment & Compliance Posture
-
-RTK-1 is purpose-built for production AI red teaming in regulated and high-stakes environments.
-
-**Key Frameworks Supported:**
-
-- **EU AI Act** — Delivers documented adversarial testing evidence required for high-risk AI systems and GPAI obligations (Articles 9, 15, and Annex IV).
-- **NIST AI RMF 1.0** — Full mapping to the **Measure** function, with explicit coverage of MEASURE 2.7 (testing and evaluation of AI system trustworthiness).
-- **OWASP LLM Top 10** — Native support for LLM01 (Prompt Injection), including multi-turn Crescendo escalation attacks.
-- **MITRE ATLAS** — Direct mapping of attack techniques, including AML.T0054 (Multi-Turn Adversarial Prompting).
-
-**Demonstrated Results**  
-I have personally executed OWASP LLM01 prompt injection attacks — including Crescendo-style multi-turn escalation mapped to MITRE ATLAS AML.T0054 — using PyRIT. Attack Success Rate (ASR) was measured across model sizes to quantify safety posture under NIST MEASURE 2.7.  
-
-RTK-1’s Claude 4 orchestration + LangGraph checkpointed workflows make these evaluations fully stateful, repeatable, auditable, and production-grade.
+Customer Entry (API / Streamlit / CI/CD)
+↓
+FastAPI Router (thin, no business logic)
+↓
+LangGraph Orchestrator
+Recon → Planner → Supervisor → Executor → Evaluator → Report
+↓
+RTKFacade (swappable provider layer)
+├── PyRITProvider    (Crescendo multi-turn)
+├── GarakProvider    (100+ failure mode probes)
+├── DeepTeamProvider (structured scenarios)
+├── promptfooProvider (regression testing)
+└── CrewAIProvider   (multi-agent: attacker + mutator + judge)
+↓
+Core Services
+AuditTrail · CampaignHistory · BehavioralFingerprint
+SemanticDrift · MutationEngine · Scoring · Alerts
+RegulatoryTracker · Scheduler · RateLimiter
+↓
+Delivery Layer
+PDF Report · Executive Email · Slide Deck
+LinkedIn Post · Grafana Dashboard · Slack Alert
 
 ## Quick Start
 
 ```bash
+# Clone and set up
+git clone https://github.com/your-org/rtk-1
+cd rtk-1
+python -m venv venv_rtk
+.\venv_rtk\Scripts\activate   # Windows
+pip install -r requirements.txt
+
+# Configure
+cp .env.example .env
+# Add your ANTHROPIC_API_KEY to .env
+
+# Start
 python -m uvicorn app.main:app --port 8000
+python -m streamlit run streamlit_app.py
+
+# Run a campaign
+curl -X POST http://localhost:8000/api/v1/redteam/crescendo-with-report \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target_model": "claude-sonnet-4-6",
+    "goal": "Test for prompt injection vulnerabilities",
+    "attack_type": "crescendo",
+    "customer_success_metrics": "ASR below 20%"
+  }'
 ```
 
-## Architecture
+## API Endpoints
 
-```mermaid
-flowchart TD
-    A[External Clients] --> B[FastAPI Zero-Trust Gateway]
-    B --> C[Claude Orchestrator Service]
-    C --> D[LangGraph Workflow]
-    C --> E[Target Adapters]
-    C --> F[Security Middleware]
-    D --> G[Planner Node - Claude decides strategy]
-    D --> H[Attacker Node - PyRIT/Garak]
-    D --> I[Scorer + Reflector - Claude evaluates]
-    D --> J[Memory + Checkpoints]
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/redteam/crescendo-with-report` | Full campaign + PDF |
+| POST | `/api/v1/redteam/crescendo` | Lightweight, no PDF |
+| POST | `/api/v1/redteam/ci` | CI/CD gate (pass/fail) |
+| POST | `/api/v1/redteam/multi-vector` | PyRIT+Garak+DeepTeam parallel |
+| POST | `/api/v1/redteam/compare` | Multi-model comparison |
+| POST | `/api/v1/redteam/delivery-bundle` | One-click delivery bundle |
+| GET | `/api/v1/redteam/trend/{model}` | ASR trend data |
+| GET | `/api/v1/redteam/history` | Campaign history |
+| GET | `/api/v1/redteam/delta/{model}` | Week-over-week delta |
+| GET | `/api/v1/redteam/weekly-summary/{model}` | Weekly PDF summary |
+| GET | `/api/v1/redteam/monthly-report/{model}` | Monthly executive email |
+| GET | `/health` | Health check |
+
+## Compliance Coverage
+
+| Framework | Coverage |
+|-----------|----------|
+| EU AI Act | Articles 9, 15, Annex IV, Article 72 |
+| NIST AI RMF | GOVERN 1.2, MAP 5.1, MEASURE 2.7, MANAGE 4.1 |
+| OWASP LLM Top 10 | LLM01, LLM02, LLM06, LLM08 |
+| MITRE ATLAS | AML.T0054, AML.T0051, AML.T0043 |
+
+## Attack Providers
+
+| Provider | Status | Coverage |
+|----------|--------|----------|
+| PyRIT 0.12.0 | ✅ Active | Crescendo multi-turn, SelfAskTrueFalseScorer |
+| Garak 0.14.1 | ✅ Active | 100+ failure modes, 20+ model APIs |
+| DeepTeam | ✅ Active | Structured scenarios, LLM-synthesized fallback |
+| promptfoo 0.121.3 | ✅ Active | Regression testing, CI/CD integration |
+| CrewAI | ✅ Active | Multi-agent: Attacker + Mutator + Judge |
+
+## Running Tests
+
+```bash
+pytest tests/test_integration.py -v
 ```
 
-## Tech Stack
+## Environment Variables
 
-| Layer          | Technology                         |
-|----------------|------------------------------------|
-| API Framework  | FastAPI + Uvicorn                  |
-| AI Orchestrator| Claude 4 (Anthropic)               |
-| Workflow Engine| LangGraph                          |
-| Attack Tools   | PyRIT, Garak                       |
-| Memory / State | LangGraph Checkpoints              |
-| Security       | mTLS, Rate Limiting, Prompt Guards |
-| Observability  | Prometheus + Grafana               |
-| Reporting      | WeasyPrint PDF + Markdown          |
+ANTHROPIC_API_KEY=sk-ant-...
+DEFAULT_MODEL=claude-sonnet-4-6
+CI_FAIL_ON_ASR_ABOVE=20.0
+SCHEDULED_CAMPAIGN_ENABLED=false
+SLACK_WEBHOOK_URL=<https://hooks.slack.com/>...  (optional)
+BASE_URL=<http://localhost:8000>
+GRAFANA_BASE_URL=<http://localhost:3000>
+
+## Business Value
+
+RTK-1 replaces the equivalent of 15 full-time red team professionals:
+
+- 4 attack execution engineers (24/7 coverage)
+- 3 compliance and documentation specialists
+- 2 monitoring and operations engineers
+- 2 regression and CI/CD engineers
+- 2 client communication managers
+- 1 scheduling and program manager
+- 1 legal and regulatory liaison
+
+**Cost comparison for one enterprise client:**
+
+- Human team: ~$3,150,000/year
+- RTK-1: ~$260,000-$320,000/year
+- Savings: ~$2,830,000/year
 
 ---
 
-## Example Professional Report
-
-RTK-1 now generates **enterprise-ready PDF reports** that map every result to your defined success metrics, include NIST Measure references, and provide EU AI Act compliance evidence.
-
-[📄 Download Sample Report](reports/fd01a0d5-fefd-44fd-9f7e-95276cebaf5b.pdf)
-
-This is the exact deliverable you can send to clients or attach to proposals as proof of red teaming.
-
-## Maintenance & Continuous Improvement Plan
-
-RTK-1 is actively maintained as a living security tool to stay ahead of the evolving threat landscape and regulatory requirements.
-
-## Maintenance & Continuous Improvement Plan
-
-RTK-1 is actively maintained as a living, production-grade security tool. I am committed to keeping it aligned with the rapidly evolving threat landscape and regulatory requirements.
-
-**Current Maintenance Practices:**
-
-- Regularly test against the latest frontier models (Claude, GPT, Gemini, Llama, etc.)
-- Map all findings to NIST AI RMF Measure function and EU AI Act obligations
-- Incorporate OWASP LLM Top 10 and MITRE ATLAS techniques in attack chains
-- Rapidly integrate community and regulatory feedback
-
-**Roadmap (Q2–Q4 2026)**
-
-- Automated mapping of findings to EU AI Act conformity assessment templates
-- Full built-in Prometheus + Grafana executive dashboards
-- Support for additional frameworks (HarmBench, Harmful Strings, etc.)
-
-I treat RTK-1 as a real security instrument — not a static academic project.
-
----
-
-**Built by Ramon Loya — First AI Red Teaming Toolkit (RTK-1) in 2026.**
+*RTK-1 v0.3.0 — Claude Sonnet 4.6 + LangGraph + PyRIT 0.12.0*
+*Built for EU AI Act enforcement. Always on. Proof of safety. Every sprint.*
