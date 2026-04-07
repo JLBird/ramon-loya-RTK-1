@@ -1,42 +1,62 @@
+"""
+RTK-1 FastAPI entry point — intentionally minimal.
+"""
+
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from prometheus_client import start_http_server
+
+from app.api.v1.redteam import router as redteam_router
 from app.core.config import settings
-from app.api.v1.redteam import router as redteam_router  # We'll create this next
+from app.core.logging import configure_logging
+from app.core.scheduler import scheduler
+
+configure_logging()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    asyncio.create_task(asyncio.to_thread(start_http_server, 8001))
+    await scheduler.start()
+    yield
+    # Shutdown
+    await scheduler.stop()
+
 
 app = FastAPI(
-    title="RTK-1 — Claude Orchestrated AI Red Teaming API",
-    description="Production-grade defensive red-teaming toolkit (Claude + LangGraph + PyRIT/Garak)",
-    version="0.1.0",
-    docs_url="/docs",           # Recruiters love live OpenAPI docs
+    title="RTK-1 — Claude-Orchestrated AI Red Teaming API",
+    description="Production-grade adversarial red-teaming: Claude 4 + LangGraph + PyRIT",
+    version="0.3.0",
+    docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
-# Security middleware (CORS for now — we'll add mTLS + rate limiting later)
+app.mount("/reports", StaticFiles(directory="reports"), name="reports")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],        # Tighten this in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include all red-team routes
 app.include_router(redteam_router, prefix="/api/v1")
+
 
 @app.get("/health")
 async def health():
-    """Simple health check — proves the API is running with Claude orchestration."""
     return {
         "status": "healthy",
-        "orchestrator": "Claude 4 + LangGraph",
-        "version": "0.1.0",
-        "settings_loaded": bool(settings.anthropic_api_key),
-    }
-
-# Optional: root endpoint for quick testing
-@app.get("/")
-async def root():
-    return {
-        "message": "🚀 RTK-1 is live! Try /api/v1/redteam/crescendo or /docs",
-        "docs": "/docs",
+        "orchestrator": "Claude Sonnet 4.6 + LangGraph",
+        "facade": "RTKFacade (PyRIT 0.12.0)",
+        "environment": settings.environment,
+        "version": "0.3.0",
+        "scheduler": "active" if settings.scheduled_campaign_enabled else "disabled",
     }

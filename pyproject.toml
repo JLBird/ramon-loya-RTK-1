@@ -1,21 +1,34 @@
 [project]
 name = "rtk-1"
 version = "0.1.0"
-description = "Claude-orchestrated AI Red Teaming Toolkit API - RTK-1"
-requires-python = ">=3.12"
+description = "Claude-orchestrated AI Red Teaming Toolkit"
+requires-python = ">=3.10"          # ← Updated to allow Python 3.14
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
     "langgraph>=0.2.0",
     "langchain-anthropic>=0.3.0",
-    # "pyrit>=0.8.0",           # temporarily disabled (Python 3.14 compatibility)
-    # "garak>=0.10.0",          # temporarily disabled (Python 3.14 compatibility)
     "pydantic>=2.10.0",
-    "pydantic-settings>=2.5.0",
+    "pydantic-settings >= 2.0.0",
     "python-dotenv>=1.0.1",
     "httpx>=0.28.0",
     "structlog>=24.0.0",
+    "markdown>=3.6",
+    "weasyprint>=62.0",
+    "prometheus-client>=0.21.0",
+    "tenacity>=9.0.0",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
+
+[tool.setuptools]
+packages = ["app"]
+package-dir = {"" = "."}
+include-package-data = true
+
+[tool.setuptools.package-data]
+"app" = ["**/*.md", "**/*.html"]
 
 [tool.uv]
 dev-dependencies = ["pytest>=8.0.0"]
