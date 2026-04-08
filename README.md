@@ -16,14 +16,17 @@
 [![Tests](https://img.shields.io/badge/Tests-28%2F28_Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)]()
 [![Providers](https://img.shields.io/badge/Providers-5_Active-brightgreen?style=for-the-badge)]()
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)]()
+[![OWASP Member](https://img.shields.io/badge/OWASP-Member_in_Good_Standing-4285F4?style=for-the-badge&logo=owasp&logoColor=white)](https://owasp.org/membership/)
 
 [![EU AI Act](https://img.shields.io/badge/EU_AI_Act-Art._9,_15,_Annex_IV-0052CC?style=flat-square)]()
 [![NIST AI RMF](https://img.shields.io/badge/NIST_AI_RMF-MEASURE_2.7-0052CC?style=flat-square)]()
-[![OWASP LLM](https://img.shields.io/badge/OWASP_LLM-Top_10-D63031?style=flat-square)]()
+[![OWASP LLM](https://img.shields.io/badge/OWASP_LLM-Top_10_Coverage-D63031?style=flat-square)](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
 [![MITRE ATLAS](https://img.shields.io/badge/MITRE_ATLAS-AML.T0054-2C3E50?style=flat-square)]()
 [![NDAA 1512](https://img.shields.io/badge/NDAA_Sec_1512-Architecture_Ready-F39C12?style=flat-square)]()
 
 <br/>
+
+> *"Built by an OWASP member — coverage maps to OWASP LLM Top 10."*
 
 > *"For your exact model or agent — RTK-1 tested X vectors, achieved Z outcomes tied to your success criteria, and here is proof it's improving week over week."*
 
