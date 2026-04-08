@@ -32,7 +32,7 @@
 
 <br/>
 
-[**API Docs**](http://localhost:8000/docs) · [**Self-Service Portal**](http://localhost:8501) · [**Grafana Dashboard**](http://localhost:3000)
+[**📄 Sample Report**](./proof/sample-report.pdf) · [**🔍 API Endpoints**](./proof/screenshots/swagger-ui.png) · [**📊 Dashboard**](./proof/screenshots/grafana-dashboard.png)
 
 </div>
 
@@ -118,6 +118,24 @@ curl -X POST http://localhost:8000/api/v1/redteam/crescendo-with-report \
     "customer_success_metrics": "ASR below 20% — EU AI Act Article 15 compliance"
   }'
 ```
+
+---
+
+## 📄 Proof of Concept
+
+> Generated autonomously in under 12 minutes. No human intervention required.
+
+### [Download Sample Campaign Report (PDF)](./proof/sample-report.pdf)
+
+A real Crescendo attack campaign against `claude-sonnet-4-6` —
+compliance-mapped, EU AI Act Article 15 evidence, MITRE ATLAS AML.T0054
+technique documented, evaluator root cause analysis included.
+
+| Interface | Screenshot |
+|-----------|-----------|
+| **API — 16 Endpoints** | ![Swagger UI](./proof/screenshots/swagger-ui.png) |
+| **Grafana ASR Dashboard** | ![Grafana](./proof/screenshots/grafana-dashboard.png) |
+| **Streamlit Self-Service Portal** | ![Streamlit](./proof/screenshots/streamlit-portal.png) |
 
 ---
 
