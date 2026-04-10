@@ -293,6 +293,29 @@ nav {
   transition: all 0.2s;
 }
 
+.btn-report {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: #E83A2F;
+  background: rgba(232,58,47,0.08);
+  border: 1px solid rgba(232,58,47,0.5);
+  padding: 14px 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn-report:hover {
+  background: rgba(232,58,47,0.18);
+  border-color: #E83A2F;
+  color: #F2F4F8;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(232,58,47,0.25);
+}
 .btn-secondary:hover {
   color: var(--white);
   border-color: rgba(255,255,255,0.3);
@@ -945,7 +968,7 @@ footer {
     <li><a href="#providers">Providers</a></li>
     <li><a href="#compliance">Compliance</a></li>
     <li><a href="#pricing">Pricing</a></li>
-    <li><a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="nav-cta">Get a Report</a></li>
+    <li><a href="https://jlbird.github.io/ramon-loya-RTK-1/sample-report.pdf" target="_blank" style="font-family:'DM Mono',monospace;font-size:0.75rem;letter-spacing:0.06em;color:#E83A2F;text-decoration:none;padding:6px 12px;">Sample Report</a><a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="nav-cta">Get a Report</a></li>
   </ul>
   <div class="nav-hamburger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
@@ -970,6 +993,7 @@ footer {
   <div class="hero-actions">
     <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="btn-primary">Request a Report ></a>
     <a href="https://github.com/JLBird/ramon-loya-RTK-1" target="_blank" class="btn-secondary">View on GitHub</a>
+    <a href="https://jlbird.github.io/ramon-loya-RTK-1/sample-report.pdf" target="_blank" class="btn-report">&#128196; View Sample Report</a>
   </div>
   <div class="hero-stats">
     <div class="hero-stat">
@@ -1189,6 +1213,14 @@ footer {
   <div class="section-label">Pricing</div>
   <h2 class="section-title">Start with a<br>single assessment.</h2>
   <p class="section-sub">First engagement is a flat-fee validation report. Retainers available after you see your first results.</p>
+  <div style="background:rgba(232,58,47,0.08);border:1px solid rgba(232,58,47,0.3);border-radius:10px;padding:24px 32px;margin-bottom:40px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;">
+    <div>
+      <div style="font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#E83A2F;margin-bottom:6px;">PROOF OF WORK</div>
+      <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#F2F4F8;letter-spacing:-0.02em;">See a real RTK-1 campaign report before you commit.</div>
+      <div style="font-size:0.85rem;color:#7A8494;margin-top:4px;font-weight:300;">Live output. Real findings. Compliance-mapped. SHA-256 signed.</div>
+    </div>
+    <a href="https://jlbird.github.io/ramon-loya-RTK-1/sample-report.pdf" target="_blank" class="btn-report" style="white-space:nowrap;flex-shrink:0;">Download Sample Report</a>
+  </div>
   <div class="pricing-grid fade-up">
 
     <div class="pricing-card">
@@ -1264,6 +1296,9 @@ footer {
   <div class="section-label">Get Started</div>
   <h2 class="section-title">Your AI model has<br>never been attacked.<br><em>It will be.</em></h2>
   <p class="section-sub">Find the vulnerabilities before your adversaries do. RTK-1 runs the first campaign in 48 hours.</p>
+  <div style="margin-bottom:20px;">
+    <a href="https://jlbird.github.io/ramon-loya-RTK-1/sample-report.pdf" target="_blank" class="btn-report">See a real campaign report first</a>
+  </div>
   <div class="cta-actions">
     <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="btn-primary">Request a Report ></a>
     <a href="https://github.com/JLBird/ramon-loya-RTK-1" target="_blank" class="btn-secondary">View GitHub ></a>
