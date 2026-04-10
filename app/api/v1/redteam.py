@@ -7,6 +7,7 @@ import os
 import sqlite3
 import time
 import uuid
+from typing import Optional
 
 import markdown
 from fastapi import APIRouter, HTTPException
@@ -15,16 +16,19 @@ from weasyprint import HTML
 from app.core.alerts import alerter
 from app.core.audit import AuditEventType, audit
 from app.core.config import settings
-from app.core.delivery import delivery
 from app.core.history import history
 from app.core.logging import get_logger
 from app.core.metrics import ASR_GAUGE, ATTACKS_TOTAL, LATENCY_HISTOGRAM
-from app.core.rate_limiter import rate_limiter
 from app.orchestrator.claude_orchestrator import compiled_graph
 from app.schemas import RedTeamRequest, RedTeamResponse
 
 logger = get_logger("redteam_router")
 router = APIRouter(tags=["redteam"])
+
+
+# ========================
+# HELPERS
+# ========================
 
 
 def generate_pdf_report(markdown_content: str, job_id: str) -> str:
@@ -55,6 +59,8 @@ async def _invoke_graph(request: RedTeamRequest) -> dict:
 # ========================
 # MAIN CAMPAIGN ENDPOINT
 # ========================
+
+
 @router.post("/redteam/crescendo-with-report", response_model=RedTeamResponse)
 async def run_crescendo_with_report(
     request: RedTeamRequest,
@@ -64,14 +70,25 @@ async def run_crescendo_with_report(
     Run a full Crescendo red team campaign.
     Returns PDF report + Grafana link + compliance mapping.
     """
-    if not rate_limiter.is_allowed(customer_id):
-        usage = rate_limiter.get_usage(customer_id)
-        raise HTTPException(
-            status_code=429,
-            detail=f"Rate limit exceeded. {usage['remaining']} requests remaining this minute.",
-        )
-
     try:
+        # Per-customer rate limiting
+        from app.core.rate_limiter import rate_limiter
+
+        limit_check = rate_limiter.check_and_increment(
+            customer_id=customer_id,
+            max_requests=settings.rate_limit_max_requests,
+            window_seconds=settings.rate_limit_window_seconds,
+        )
+        if not limit_check["allowed"]:
+            raise HTTPException(
+                status_code=429,
+                detail=(
+                    f"Rate limit exceeded. "
+                    f"{limit_check['requests_remaining']} requests remaining "
+                    f"in current window."
+                ),
+            )
+
         ATTACKS_TOTAL.inc()
         start_time = time.time()
 
@@ -96,18 +113,12 @@ async def run_crescendo_with_report(
         job_id = result["job_id"]
         generate_pdf_report(result["final_report_markdown"], job_id)
 
-        report_link = f"{settings.base_url}/reports/{job_id}.pdf"
-        grafana_link = (
-            f"{settings.grafana_base_url}/d/{settings.grafana_dashboard_uid}"
-            f"/rtk-1-executive-red-teaming-dashboard?var-job_id={job_id}"
-        )
-
         await alerter.check_and_alert_asr(
             job_id=job_id,
             asr=asr,
             target_model=request.target_model,
             goal=request.goal,
-            report_link=report_link,
+            report_link=f"{settings.base_url}/reports/{job_id}.pdf",
         )
 
         audit.log(
@@ -118,7 +129,10 @@ async def run_crescendo_with_report(
         )
 
         logger.info(
-            "campaign_completed", job_id=job_id, asr=asr, latency=round(latency, 2)
+            "campaign_completed",
+            job_id=job_id,
+            asr=asr,
+            latency=round(latency, 2),
         )
 
         return RedTeamResponse(
@@ -130,14 +144,21 @@ async def run_crescendo_with_report(
             asr=asr,
             results=result.get("results"),
             final_report_markdown=result["final_report_markdown"],
-            report_link=report_link,
-            grafana_link=grafana_link,
+            report_link=f"{settings.base_url}/reports/{job_id}.pdf",
+            grafana_link=(
+                f"{settings.grafana_base_url}/d/{settings.grafana_dashboard_uid}"
+                f"/rtk-1-executive-red-teaming-dashboard?var-job_id={job_id}"
+            ),
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error("campaign_failed", error=str(e))
         audit.log(
-            AuditEventType.CAMPAIGN_FAILED, actor="api", payload={"error": str(e)}
+            AuditEventType.CAMPAIGN_FAILED,
+            actor="api",
+            payload={"error": str(e)},
         )
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -145,6 +166,8 @@ async def run_crescendo_with_report(
 # ========================
 # LIGHTWEIGHT ENDPOINT
 # ========================
+
+
 @router.post("/redteam/crescendo")
 async def run_crescendo(request: RedTeamRequest):
     """Lightweight endpoint — raw result without PDF generation."""
@@ -161,14 +184,21 @@ async def run_crescendo(request: RedTeamRequest):
 
 
 # ========================
-# CI/CD GATE ENDPOINT
+# CI/CD GATE ENDPOINT (Objective 23)
 # ========================
+
+
 @router.post("/redteam/ci")
 async def run_ci_gate(request: RedTeamRequest):
-    """Lightweight CI/CD gate. Returns ASR and pass/fail status."""
+    """
+    Lightweight CI/CD gate endpoint.
+    Returns ASR and pass/fail status. Fails fast, no PDF generation.
+    """
     try:
         ATTACKS_TOTAL.inc()
+
         result = await _invoke_graph(request)
+
         asr = result.get("asr", 0.0)
         job_id = result["job_id"]
         passed = asr < settings.ci_fail_on_asr_above
@@ -206,96 +236,21 @@ async def run_ci_gate(request: RedTeamRequest):
 
 
 # ========================
-# MULTI-VECTOR ENDPOINT
+# TREND + HISTORY (Objective 20)
 # ========================
-@router.post("/redteam/multi-vector")
-async def run_multi_vector(
-    request: RedTeamRequest,
-    vectors: list[str] = None,
-):
-    """Multi-vector unified campaign — PyRIT + Garak + DeepTeam in parallel."""
-    try:
-        from app.domain.models import AttackVector, CampaignConfig
-        from app.facade import facade
-
-        config = CampaignConfig(
-            target_model=request.target_model,
-            goal=request.goal,
-            vector=AttackVector.CRESCENDO,
-            customer_success_metrics=request.customer_success_metrics,
-            num_sequences=1,
-            turns_per_sequence=3,
-        )
-
-        result = await facade.run_multi_vector_campaign(
-            config=config,
-            vectors=vectors or ["pyrit", "deepteam", "crewai"],
-        )
-
-        return {
-            "campaign_id": result["campaign_id"],
-            "goal": result["goal"],
-            "target_model": result["target_model"],
-            "vectors_run": result["vectors_run"],
-            "combined_asr": result["combined_asr"],
-            "per_vector_results": result["per_vector"],
-            "status": "completed",
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 
-# ========================
-# DELIVERY BUNDLE ENDPOINT
-# ========================
-@router.post("/redteam/delivery-bundle")
-async def get_delivery_bundle(
-    request: RedTeamRequest,
-    job_id: str,
-    asr: float,
-    total_sequences: int,
-    recipient_name: str = "Team",
-    customer_id: str = "default",
-):
-    """One-click delivery bundle — PDF + email + deck + LinkedIn + weekly summary."""
-    if not rate_limiter.is_allowed(customer_id):
-        raise HTTPException(status_code=429, detail="Rate limit exceeded.")
-
-    try:
-        report_link = f"{settings.base_url}/reports/{job_id}.pdf"
-        grafana_link = (
-            f"{settings.grafana_base_url}/d/{settings.grafana_dashboard_uid}"
-            f"/rtk-1-executive-red-teaming-dashboard?var-job_id={job_id}"
-        )
-
-        bundle = delivery.generate_delivery_bundle(
-            target_model=request.target_model,
-            goal=request.goal,
-            asr=asr,
-            total_sequences=total_sequences,
-            customer_success_metrics=request.customer_success_metrics,
-            job_id=job_id,
-            report_link=report_link,
-            grafana_link=grafana_link,
-            recipient_name=recipient_name,
-        )
-
-        return bundle
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-# ========================
-# TREND + HISTORY ENDPOINTS
-# ========================
 @router.get("/redteam/trend/{target_model}")
 async def get_asr_trend(target_model: str, days: int = 30):
     """ASR trend data for Grafana and executive reporting."""
     trend = history.get_asr_trend(target_model=target_model, days=days)
     delta = history.get_asr_delta(target_model=target_model)
-    return {"target_model": target_model, "days": days, "trend": trend, "delta": delta}
+    return {
+        "target_model": target_model,
+        "days": days,
+        "trend": trend,
+        "delta": delta,
+    }
 
 
 @router.get("/redteam/history")
@@ -323,43 +278,36 @@ async def get_campaign_history(limit: int = 20):
     ]
 
 
+# ========================
+# DELTA / BUSINESS VALUE (Objective 21)
+# ========================
+
+
 @router.get("/redteam/delta/{target_model}")
 async def get_asr_delta(target_model: str):
-    """Week-over-week ASR delta with business value framing."""
-    return history.get_asr_delta(target_model=target_model)
-
-
-@router.get("/redteam/weekly-summary/{target_model}")
-async def get_weekly_summary(target_model: str, days: int = 7):
-    """Weekly summary markdown for executive reporting."""
-    summary = delivery.generate_weekly_summary_markdown(
-        target_model=target_model, days=days
-    )
-    return {"target_model": target_model, "summary": summary}
-
-
-@router.get("/redteam/monthly-report/{target_model}")
-async def get_monthly_report(target_model: str):
-    """Monthly executive dashboard email content."""
-    return delivery.generate_monthly_executive_email(target_model=target_model)
-
-
-@router.get("/redteam/rate-limit/{customer_id}")
-async def get_rate_limit_status(customer_id: str):
-    """Check rate limit status for a customer."""
-    return rate_limiter.get_usage(customer_id)
+    """
+    Week-over-week ASR delta with business value framing.
+    Powers the '93% safer' executive narrative.
+    """
+    delta = history.get_asr_delta(target_model=target_model)
+    return delta
 
 
 # ========================
-# COMPARE MODELS ENDPOINT
+# MULTI-MODEL COMPARISON (Objective 57)
 # ========================
+
+
 @router.post("/redteam/compare")
 async def compare_models(
     target_models: list[str],
     goal: str,
     customer_success_metrics: str = "Compare robustness across model variants",
 ):
-    """Run same campaign against multiple models in parallel."""
+    """
+    Run the same campaign against multiple models in parallel.
+    Returns comparative ASR report.
+    """
     try:
         from app.domain.models import AttackVector, CampaignConfig
         from app.facade import facade
@@ -370,13 +318,14 @@ async def compare_models(
                 goal=goal,
                 vector=AttackVector.CRESCENDO,
                 customer_success_metrics=customer_success_metrics,
-                num_sequences=1,
-                turns_per_sequence=3,
+                num_sequences=3,
+                turns_per_sequence=8,
             )
             for model in target_models
         ]
 
         results = await facade.run_parallel_campaigns(configs)
+
         comparison = [
             {
                 "target_model": r.target_model,
@@ -387,6 +336,7 @@ async def compare_models(
             }
             for r in results
         ]
+
         comparison.sort(key=lambda x: x["asr"])
 
         return {
@@ -404,6 +354,8 @@ async def compare_models(
 # ========================
 # MULTI-VECTOR ENDPOINT (Objective 19)
 # ========================
+
+
 @router.post("/redteam/multi-vector")
 async def run_multi_vector(request: RedTeamRequest):
     """
@@ -414,9 +366,9 @@ async def run_multi_vector(request: RedTeamRequest):
     try:
         from langchain_anthropic import ChatAnthropic
 
-        from app.core.config import settings
         from app.domain.models import AttackVector, CampaignConfig
         from app.providers.multi_vector_provider import MultiVectorProvider
+        from app.providers.scorer_generator import ScorerGenerator
 
         llm = ChatAnthropic(
             model=settings.default_model,
@@ -436,8 +388,6 @@ async def run_multi_vector(request: RedTeamRequest):
             turns_per_sequence=5,
         )
 
-        from app.providers.scorer_generator import ScorerGenerator
-
         scorer_gen = ScorerGenerator(llm=llm)
         scorer_config = await scorer_gen.generate(
             goal=request.goal,
@@ -451,15 +401,16 @@ async def run_multi_vector(request: RedTeamRequest):
         successful = sum(1 for r in results if r.success)
         asr = round((successful / total) * 100, 2) if total > 0 else 0.0
 
-        # Per-vector breakdown
-        from app.domain.models import AttackTool
-
         breakdown = {}
-        for tool in [AttackTool.PYRIT, AttackTool.RAG_INJECTION, AttackTool.TOOL_ABUSE]:
-            vector_results = [r for r in results if r.attack_tool == tool]
+        for tool_name in ["pyrit", "rag_injection", "tool_abuse"]:
+            vector_results = [
+                r
+                for r in results
+                if hasattr(r, "attack_tool") and r.attack_tool.value == tool_name
+            ]
             if vector_results:
                 v_successful = sum(1 for r in vector_results if r.success)
-                breakdown[tool.value] = {
+                breakdown[tool_name] = {
                     "total": len(vector_results),
                     "successful": v_successful,
                     "asr": round((v_successful / len(vector_results)) * 100, 2),
@@ -481,68 +432,90 @@ async def run_multi_vector(request: RedTeamRequest):
 
 
 # ========================
-# FEDERATED + ATTACK LIBRARY ENDPOINTS
+# DELIVERY BUNDLE (Objective 29)
 # ========================
-@router.post("/redteam/federated")
-async def run_federated_campaign(
-    request: RedTeamRequest,
-    node_urls: list[str] = None,
+
+
+@router.post("/redteam/delivery-bundle")
+async def get_delivery_bundle(
+    job_id: str,
+    target_model: str,
+    asr: float,
+    goal: str,
+    total_sequences: int = 0,
+    successful_sequences: int = 0,
+    customer_success_metrics: str = "",
+    previous_asr: Optional[float] = None,
+    customer_name: str = "Team",
 ):
     """
-    Federated red teaming — coordinate attacks from multiple nodes.
-    Tests rate limiting, geo-blocking, and anomaly detection.
+    One-click delivery bundle — all content generated from campaign data.
+    Business value statement + executive email + slide deck + LinkedIn post.
     """
     try:
-        from app.core.federated import coordinator
-        from app.domain.models import AttackVector, CampaignConfig
+        from app.core.delivery import delivery
 
-        if node_urls:
-            for url in node_urls:
-                coordinator.register_node(url)
-
-        config = CampaignConfig(
-            target_model=request.target_model,
-            goal=request.goal,
-            vector=AttackVector.CRESCENDO,
-            customer_success_metrics=request.customer_success_metrics,
-            num_sequences=1,
-            turns_per_sequence=3,
+        report_link = f"{settings.base_url}/reports/{job_id}.pdf"
+        bundle = delivery.delivery_bundle(
+            job_id=job_id,
+            target_model=target_model,
+            asr=asr,
+            goal=goal,
+            total_sequences=total_sequences,
+            successful_sequences=successful_sequences,
+            customer_success_metrics=customer_success_metrics,
+            previous_asr=previous_asr,
+            customer_name=customer_name,
+            report_link=report_link,
         )
-
-        result = await coordinator.run_federated_campaign(config)
-        return result
-
+        return bundle
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/redteam/attack-library")
-async def get_attack_library():
-    """Return all known attack techniques in the library."""
-    from app.core.attack_library import attack_library
+@router.get("/redteam/weekly-summary/{target_model}")
+async def get_weekly_summary(target_model: str):
+    """Weekly PDF summary markdown for auto-generation."""
+    try:
+        from app.core.delivery import delivery
 
-    return {
-        "techniques": attack_library.get_all_techniques(),
-        "total": len(attack_library.get_all_techniques()),
-    }
+        return {"summary": delivery.weekly_summary_markdown(target_model)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/redteam/attack-library/{owasp_category}")
-async def get_techniques_by_owasp(owasp_category: str):
-    """Return attack techniques filtered by OWASP LLM category."""
-    from app.core.attack_library import attack_library
+@router.get("/redteam/monthly-report/{target_model}")
+async def get_monthly_report(target_model: str, customer_name: str = "Team"):
+    """Monthly executive dashboard email."""
+    try:
+        from app.core.delivery import delivery
 
-    techniques = attack_library.get_techniques_by_owasp(owasp_category)
-    return {
-        "owasp_category": owasp_category,
-        "techniques": techniques,
-        "total": len(techniques),
-    }
+        return delivery.monthly_executive_email(target_model, customer_name)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
+# RATE LIMIT STATUS (Objective 27)
+# ========================
+
+
+@router.get("/redteam/rate-limit/{customer_id}")
+async def get_rate_limit_status(customer_id: str):
+    """Per-customer rate limit status."""
+    try:
+        from app.core.rate_limiter import rate_limiter
+
+        return rate_limiter.get_status(customer_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ========================
 # SALES ENDPOINT (stub)
 # ========================
+
+
 @router.post("/sales/run")
 async def run_agentic_sales():
     try:

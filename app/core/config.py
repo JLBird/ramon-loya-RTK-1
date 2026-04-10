@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     default_model: str = "claude-sonnet-4-6"
     default_temperature: float = 0.7
     default_max_tokens: int = 4096
+    rate_limit_max_requests: int = 10
+    rate_limit_window_seconds: int = 3600
 
     # ── Attack Campaign Defaults ──────────────────────────────────────
     default_num_sequences: int = 3
