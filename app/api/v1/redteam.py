@@ -402,6 +402,85 @@ async def compare_models(
 
 
 # ========================
+# MULTI-VECTOR ENDPOINT (Objective 19)
+# ========================
+@router.post("/redteam/multi-vector")
+async def run_multi_vector(request: RedTeamRequest):
+    """
+    Run PyRIT + RAG injection + tool abuse in parallel.
+    Returns unified ASR with per-vector breakdown.
+    Ideal for A2SPA validation and full agentic stack testing.
+    """
+    try:
+        from langchain_anthropic import ChatAnthropic
+
+        from app.core.config import settings
+        from app.domain.models import AttackVector, CampaignConfig
+        from app.providers.multi_vector_provider import MultiVectorProvider
+
+        llm = ChatAnthropic(
+            model=settings.default_model,
+            temperature=0.7,
+            max_tokens=4096,
+            anthropic_api_key=settings.anthropic_api_key,
+        )
+
+        provider = MultiVectorProvider(llm=llm)
+
+        config = CampaignConfig(
+            target_model=request.target_model,
+            goal=request.goal,
+            vector=AttackVector.CRESCENDO,
+            customer_success_metrics=request.customer_success_metrics,
+            num_sequences=3,
+            turns_per_sequence=5,
+        )
+
+        from app.providers.scorer_generator import ScorerGenerator
+
+        scorer_gen = ScorerGenerator(llm=llm)
+        scorer_config = await scorer_gen.generate(
+            goal=request.goal,
+            customer_success_metrics=request.customer_success_metrics,
+            target_model=request.target_model,
+        )
+
+        results = await provider.run_campaign(config, scorer_config)
+
+        total = len(results)
+        successful = sum(1 for r in results if r.success)
+        asr = round((successful / total) * 100, 2) if total > 0 else 0.0
+
+        # Per-vector breakdown
+        from app.domain.models import AttackTool
+
+        breakdown = {}
+        for tool in [AttackTool.PYRIT, AttackTool.RAG_INJECTION, AttackTool.TOOL_ABUSE]:
+            vector_results = [r for r in results if r.attack_tool == tool]
+            if vector_results:
+                v_successful = sum(1 for r in vector_results if r.success)
+                breakdown[tool.value] = {
+                    "total": len(vector_results),
+                    "successful": v_successful,
+                    "asr": round((v_successful / len(vector_results)) * 100, 2),
+                }
+
+        return {
+            "job_id": str(uuid.uuid4()),
+            "target_model": request.target_model,
+            "goal": request.goal,
+            "total_sequences": total,
+            "successful_sequences": successful,
+            "overall_asr": asr,
+            "vector_breakdown": breakdown,
+            "status": "completed",
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
 # FEDERATED + ATTACK LIBRARY ENDPOINTS
 # ========================
 @router.post("/redteam/federated")

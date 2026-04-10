@@ -34,6 +34,8 @@ class AttackTool(str, Enum):
     CREWAI = "crewai"
     DEEPTEAM = "deepteam"
     MOCK = "mock"
+    RAG_INJECTION = "rag_injection"
+    TOOL_ABUSE = "tool_abuse"
 
 
 class AttackResult(BaseModel):
