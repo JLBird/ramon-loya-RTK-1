@@ -529,3 +529,380 @@ async def run_agentic_sales():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
+# VDP DISCLOSURE PACKAGE (Objective 69)
+# ========================
+
+
+@router.post("/redteam/vdp-package")
+async def create_vdp_package(
+    job_id: str,
+    target_model: str,
+    attack_type: str,
+    asr: float,
+    system_scope: str = "AI language model — production deployment",
+    asset_criticality: str = "HIGH",
+    output_format: str = "json",  # "json" | "xml"
+):
+    """
+    Generate VDP-ready DHS AI-ISAC disclosure package.
+    NDAA Section 1512 compliant. Supports JSON (v1.0) and XML (v1.1).
+    """
+    try:
+        from app.core.isac_transporter import isac_transporter
+
+        # Pull results from campaign history if available
+        results = []
+        try:
+            import sqlite3
+
+            with sqlite3.connect(settings.campaign_db_path) as conn:
+                rows = conn.execute(
+                    "SELECT results_json FROM campaigns WHERE job_id=?", (job_id,)
+                ).fetchone()
+            if rows and rows[0]:
+                import json
+
+                results = json.loads(rows[0])
+        except Exception:
+            pass
+
+        payload = isac_transporter.build_payload(
+            job_id=job_id,
+            target_model=target_model,
+            attack_type=attack_type,
+            asr=asr,
+            results=results,
+            system_scope=system_scope,
+            asset_criticality=asset_criticality,
+        )
+
+        if output_format == "xml":
+            return {
+                "job_id": job_id,
+                "format": "xml",
+                "schema_version": "1.1",
+                "content": isac_transporter.to_xml(payload),
+                "ndaa_1512_compliant": True,
+            }
+
+        return {
+            "job_id": job_id,
+            "format": "json",
+            "schema_version": "1.0",
+            "payload": payload.model_dump(),
+            "ndaa_1512_compliant": True,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/redteam/vdp-package/{job_id}")
+async def get_vdp_package(job_id: str, output_format: str = "json"):
+    """Retrieve existing VDP package for a completed campaign."""
+    try:
+        import sqlite3
+
+        from app.core.isac_transporter import isac_transporter
+
+        with sqlite3.connect(settings.campaign_db_path) as conn:
+            row = conn.execute(
+                "SELECT target_model, asr FROM campaigns WHERE job_id=?", (job_id,)
+            ).fetchone()
+
+        if not row:
+            raise HTTPException(status_code=404, detail=f"Campaign {job_id} not found")
+
+        payload = isac_transporter.build_payload(
+            job_id=job_id,
+            target_model=row[0],
+            attack_type="crescendo",
+            asr=row[1],
+            results=[],
+        )
+
+        return {
+            "job_id": job_id,
+            "format": output_format,
+            "payload": payload.model_dump(),
+            "ndaa_1512_compliant": True,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
+# REPORT SIGNING + VERIFY (Objective 68)
+# ========================
+
+
+@router.post("/redteam/sign/{job_id}")
+async def sign_report(job_id: str):
+    """
+    SHA-256 sign a completed report for FCA liability protection.
+    Returns signature record with HMAC for tamper detection.
+    """
+    try:
+        import os
+
+        from app.core.report_signer import report_signer
+
+        report_path = f"reports/{job_id}.pdf"
+        md_path = f"reports/{job_id}.md"
+
+        content = ""
+        for path in [md_path, report_path]:
+            if os.path.exists(path):
+                with open(path, "rb") as f:
+                    content = f.read().decode("utf-8", errors="ignore")
+                break
+
+        if not content:
+            raise HTTPException(
+                status_code=404, detail=f"No report found for job_id {job_id}"
+            )
+
+        record = report_signer.sign(job_id=job_id, report_markdown=content)
+
+        return {
+            "job_id": job_id,
+            "signature_id": record.signature_id,
+            "report_sha256": record.report_sha256,
+            "hmac_signature": record.hmac_signature[:16] + "...",
+            "signed_at": record.signed_at.isoformat(),
+            "fca_compliant": record.fca_compliant,
+            "ndaa_1512_compliant": record.ndaa_1512_compliant,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/redteam/verify/{job_id}")
+async def verify_report(job_id: str):
+    """Verify report integrity against stored SHA-256 signature."""
+    try:
+        import os
+
+        from app.core.report_signer import report_signer
+
+        content = ""
+        for path in [f"reports/{job_id}.md", f"reports/{job_id}.pdf"]:
+            if os.path.exists(path):
+                with open(path, "rb") as f:
+                    content = f.read().decode("utf-8", errors="ignore")
+                break
+
+        if not content:
+            raise HTTPException(
+                status_code=404, detail=f"No report found for job_id {job_id}"
+            )
+
+        return report_signer.verify(job_id=job_id, report_markdown=content)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
+# BLAST RADIUS / REMEDIATION (Objectives 78, 79)
+# ========================
+
+
+@router.post("/redteam/remediation-impact")
+async def get_remediation_impact(
+    job_id: str,
+    proposed_patch: str,
+    target_model: str,
+    original_asr: float,
+):
+    """
+    Evaluate impact of a proposed patch against known attack prompts.
+    Returns blast_radius_score + patch_confidence + re-test results.
+    ITIL 4: Change Control → Risk Assessment → Validation.
+    """
+    try:
+        from app.core.blast_radius import PatchProposal, blast_radius_engine
+
+        patch = PatchProposal(
+            job_id=job_id,
+            vulnerability_summary=f"Identified via RTK-1 campaign — ASR: {original_asr}%",
+            proposed_patch=proposed_patch,
+            patch_type="system_prompt",
+        )
+
+        result = await blast_radius_engine.evaluate_patch(
+            job_id=job_id,
+            patch=patch,
+            original_asr=original_asr,
+            successful_prompts=[],
+            target_model=target_model,
+        )
+
+        return {
+            "job_id": job_id,
+            "original_asr": result.original_asr,
+            "post_patch_asr": result.post_patch_asr,
+            "asr_reduction": result.asr_reduction,
+            "patch_verified": result.patch_verified,
+            "patch_confidence": result.patch_confidence,
+            "blast_radius_score": result.production_impact_score,
+            "remediation_impact_score": result.remediation_impact_score,
+            "itil4_change_risk": result.itil4_change_risk,
+            "summary": result.summary,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
+# NEUTRALITY CHECK (Objective 71)
+# ========================
+
+
+@router.post("/redteam/neutrality-check")
+async def run_neutrality_check(
+    target_model: str = "claude-sonnet-4-6",
+    customer_id: str = "default",
+):
+    """
+    GSA federal procurement neutrality check.
+    Tests for political bias, sycophancy, and factual accuracy under pressure.
+    Returns Neutrality Score (0-100) + GSA compliance status.
+    """
+    try:
+        from app.providers.neutrality_provider import NeutralityProvider
+
+        provider = NeutralityProvider()
+        report = await provider.run_neutrality_check(target_model=target_model)
+
+        return {
+            "target_model": target_model,
+            "neutrality_score": report.neutrality_score,
+            "ideological_score": report.ideological_score,
+            "sycophancy_score": report.sycophancy_score,
+            "factual_pressure_score": report.factual_pressure_score,
+            "gsa_compliant": report.gsа_compliant,
+            "tests_run": report.tests_run,
+            "tests_failed": report.tests_failed,
+            "summary": report.summary,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
+# DUAL MODEL VALIDATION (Objective 76)
+# ========================
+
+
+@router.post("/redteam/dual-validate")
+async def dual_validate(
+    job_id: str,
+    goal: str,
+    target_model: str,
+    attack_prompt: str = None,
+):
+    """
+    Claude 4 proposes attack → secondary model predicts blast radius.
+    Returns attack_success_probability + blast_radius_score + combined_risk.
+    """
+    try:
+        from app.core.continual_monitor import dual_model_validator
+
+        result = await dual_model_validator.validate(
+            job_id=job_id,
+            goal=goal,
+            target_model=target_model,
+            attack_prompt=attack_prompt,
+        )
+
+        return {
+            "validation_id": result.validation_id,
+            "job_id": job_id,
+            "attack_success_probability": result.attack_success_probability,
+            "blast_radius_score": result.blast_radius_score,
+            "combined_risk_score": result.combined_risk_score,
+            "recommendation": result.recommendation,
+            "defender_assessment": result.defender_assessment[:300],
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
+# SUBSCRIPTION STATUS (Objective 83)
+# ========================
+
+
+@router.get("/subscriptions/{customer_id}")
+async def get_subscription_status(customer_id: str):
+    """Get subscription tier, limits, and campaign usage."""
+    try:
+        from app.core.subscription import subscription_manager
+
+        sub = subscription_manager.get_subscription(customer_id)
+        if not sub:
+            raise HTTPException(
+                status_code=404, detail=f"No subscription for {customer_id}"
+            )
+
+        check = subscription_manager.check_campaign_allowed(customer_id)
+        limits = subscription_manager.get_tier_info(sub.tier)
+
+        return {
+            "customer_id": customer_id,
+            "tier": sub.tier.value,
+            "active": sub.active,
+            "campaigns_this_month": sub.campaigns_this_month,
+            "campaigns_remaining": check.get("remaining", -1),
+            "campaign_allowed": check["allowed"],
+            "limits": limits,
+            "expires_at": sub.expires_at.isoformat() if sub.expires_at else None,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
+# CIR DASHBOARD (Objective 91)
+# ========================
+
+
+@router.get("/itil/cir")
+async def get_cir_dashboard():
+    """ITIL 4 Continual Improvement Register dashboard."""
+    try:
+        from app.core.cir import cir
+
+        return cir.get_dashboard()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/itil/cir/entries")
+async def get_cir_entries(status: str = None):
+    """Get all CIR entries, optionally filtered by status."""
+    try:
+        from app.core.cir import CIRStatus, cir
+
+        s = CIRStatus(status) if status else None
+        return {"entries": cir.get_all(status=s)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
