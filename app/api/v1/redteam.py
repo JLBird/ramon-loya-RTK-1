@@ -906,3 +906,69 @@ async def get_cir_entries(status: str = None):
         return {"entries": cir.get_all(status=s)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
+# SOCIAL AUTO-POST (Objectives 93, 94, 95)
+# ========================
+
+
+@router.post("/social/post-campaign")
+async def post_campaign_to_social(
+    asr: float,
+    target_model: str,
+    goal: str,
+    dry_run: bool = False,
+):
+    """
+    Auto-post campaign results to X and LinkedIn.
+    Set dry_run=True to preview without publishing.
+    SEO keywords injected automatically.
+    """
+    try:
+        from app.core.social_automation import profile_sync
+
+        result = await profile_sync.sync_on_campaign_milestone(
+            asr=asr,
+            target_model=target_model,
+            goal=goal,
+            trigger="api_triggered",
+            dry_run=dry_run,
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/social/post-custom")
+async def post_custom_to_social(
+    x_template: str = "technical_insight",
+    li_template: str = "enterprise_win",
+    asr: float = 0.0,
+    target_model: str = "claude-sonnet-4-6",
+    goal: str = "AI red teaming campaign",
+    dry_run: bool = False,
+):
+    """
+    Post with explicitly chosen templates.
+    x_template options: technical_insight, compliance_win, security_research, asr_improvement
+    li_template options: enterprise_win, asr_improvement, new_provider, regulatory_milestone, research_finding
+    """
+    try:
+        from app.core.social_automation import profile_sync
+
+        context = {
+            "asr": asr,
+            "target_model": target_model,
+            "goal": goal[:100],
+            "platform": "RTK-1 autonomous AI red teaming platform",
+        }
+        result = await profile_sync.post_custom(
+            x_template=x_template,
+            li_template=li_template,
+            context=context,
+            dry_run=dry_run,
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

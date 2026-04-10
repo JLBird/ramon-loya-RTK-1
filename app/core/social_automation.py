@@ -1,10 +1,11 @@
 """
-RTK-1 X (Twitter) Post Auto-Generator — Objective 94
-RTK-1 Professional Profile Sync — Objective 95
-Enhanced LinkedIn Post Generator — Objective 93
+RTK-1 Social Automation — Objectives 93, 94, 95
+Auto-posting to X (Twitter) and LinkedIn with SEO keywords baked in.
+Triggered by campaign completions via delivery bundle.
 """
 
-from typing import Any, Dict, Optional
+import os
+from typing import Any, Dict
 
 from langchain_anthropic import ChatAnthropic
 
@@ -13,200 +14,337 @@ from app.core.logging import get_logger
 
 logger = get_logger("social_automation")
 
+# ── SEO Keywords ──────────────────────────────────────────────────────────────
+PRIMARY_KEYWORDS = [
+    "AI red teaming",
+    "LLM security testing",
+    "EU AI Act compliance",
+    "autonomous red teaming",
+]
+SECONDARY_KEYWORDS = [
+    "prompt injection testing",
+    "AI safety validation",
+    "NIST AI RMF compliance",
+    "OWASP LLM Top 10",
+]
+LONGTAIL_KEYWORDS = [
+    "automated AI red teaming platform",
+    "EU AI Act Article 15 compliance tool",
+    "continuous LLM adversarial testing",
+]
 
-# ══════════════════════════════════════════════════════════════════════════════
-# X (TWITTER) POST GENERATOR — Objective 94
-# ══════════════════════════════════════════════════════════════════════════════
+SEO_INJECTION = (
+    "Naturally weave in 2-3 of these SEO keywords where contextually appropriate: "
+    f"Primary: {', '.join(PRIMARY_KEYWORDS)}. "
+    f"Secondary: {', '.join(SECONDARY_KEYWORDS)}. "
+    "Do NOT keyword-stuff — integrate them naturally as an expert would write."
+)
+
+X_HASHTAGS = (
+    "#AIRedTeaming #LLMSecurity #AIActCompliance #PromptInjection #CyberSecurity"
+)
+
+
+# ── X Post Templates ──────────────────────────────────────────────────────────
 
 X_TEMPLATES = {
     "technical_insight": (
-        "Share a technical AI security insight from this finding in under 280 chars. "
-        "Include relevant hashtags. No fluff — pure signal."
+        f"Share a sharp technical AI security insight in under 260 chars. "
+        f"Naturally include 1-2 SEO keywords from: AI red teaming, LLM security testing. "
+        f"End with relevant hashtags. Pure signal, no fluff. "
+        f"Always end with: {X_HASHTAGS}"
     ),
     "compliance_win": (
-        "Announce an AI compliance milestone in under 280 chars. "
-        "Professional tone. Include #AIRedTeaming #NIST or #NDAA as relevant."
+        f"Announce an AI compliance milestone in under 260 chars. "
+        f"Naturally reference EU AI Act compliance or NIST AI RMF compliance. "
+        f"Professional, credible. End with: {X_HASHTAGS}"
     ),
     "security_research": (
-        "Share an AI vulnerability research finding in under 280 chars. "
-        "Technical but accessible. Include #AISecuity #LLMSecurity."
+        f"Share an AI vulnerability research finding in under 260 chars. "
+        f"Naturally reference LLM security testing or prompt injection testing. "
+        f"Technical but accessible. End with: {X_HASHTAGS}"
     ),
     "asr_improvement": (
-        "Post about an ASR improvement milestone in under 280 chars. "
-        "Frame it as a security win for the client."
+        f"Post about an ASR improvement from autonomous red teaming in under 260 chars. "
+        f"Frame as a security win. Include specific metric. End with: {X_HASHTAGS}"
     ),
 }
 
 
-class XPostGenerator:
-    """Auto-generates X posts from RTK-1 campaign milestones."""
+# ── LinkedIn Post Templates ───────────────────────────────────────────────────
 
-    def __init__(self, llm: Optional[Any] = None):
-        self._llm = llm or ChatAnthropic(
+LINKEDIN_TEMPLATES = {
+    "enterprise_win": (
+        f"Write a LinkedIn post announcing an enterprise AI red team win. "
+        f"Hook + insight + methodology + CTA. 150-200 words. First-person voice. "
+        f"Professional, credible, no buzzword soup. {SEO_INJECTION}"
+    ),
+    "asr_improvement": (
+        f"Write a LinkedIn post about an AI model robustness improvement from autonomous red teaming. "
+        f"Frame ASR reduction as business value — risk reduced, compliance achieved. "
+        f"150-200 words. Include a specific metric. {SEO_INJECTION}"
+    ),
+    "new_provider": (
+        f"Write a LinkedIn post announcing a new AI red team capability. "
+        f"Technical but accessible. Explain enterprise AI safety value. "
+        f"150-200 words. {SEO_INJECTION}"
+    ),
+    "regulatory_milestone": (
+        f"Write a LinkedIn post about achieving a regulatory compliance milestone. "
+        f"Reference EU AI Act compliance or NIST AI RMF compliance specifically. "
+        f"150-200 words. Professional tone. {SEO_INJECTION}"
+    ),
+    "research_finding": (
+        f"Write a LinkedIn post sharing an AI security research finding. "
+        f"Responsible disclosure framing. What was found, why it matters, what was fixed. "
+        f"150-200 words. {SEO_INJECTION}"
+    ),
+}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# X (TWITTER) AUTO-POSTER
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+class XPoster:
+    """Posts to X via Tweepy OAuth 1.0a. Requires tweepy installed."""
+
+    def __init__(self):
+        self._client = None
+        self._llm = ChatAnthropic(
             model=settings.default_model,
             temperature=0.8,
             max_tokens=300,
             anthropic_api_key=settings.anthropic_api_key,
         )
 
-    async def generate(
-        self,
-        template: str,
-        context: Dict[str, Any],
-    ) -> str:
+    def _get_client(self):
+        if self._client:
+            return self._client
+        try:
+            import tweepy
+        except ImportError:
+            raise RuntimeError(
+                "tweepy not installed — run: pip install tweepy --break-system-packages"
+            )
+
+        api_key = os.environ.get("X_API_KEY", "")
+        api_secret = os.environ.get("X_API_SECRET", "")
+        acc_token = os.environ.get("X_ACCESS_TOKEN", "")
+        acc_secret = os.environ.get("X_ACCESS_SECRET", "")
+
+        if not all([api_key, api_secret, acc_token, acc_secret]):
+            raise RuntimeError("X API credentials not fully configured in .env")
+
+        self._client = tweepy.Client(
+            consumer_key=api_key,
+            consumer_secret=api_secret,
+            access_token=acc_token,
+            access_token_secret=acc_secret,
+        )
+        return self._client
+
+    async def generate_post(self, template: str, context: Dict[str, Any]) -> str:
+        """Generate SEO-optimized X post using Claude."""
         instruction = X_TEMPLATES.get(template, X_TEMPLATES["technical_insight"])
-        prompt = f"""{instruction}
-
-Context:
-{self._format_context(context)}
-
-Return only the post text, nothing else. Under 280 characters."""
-
+        prompt = (
+            f"{instruction}\n\n"
+            f"Context:\n"
+            + "\n".join(f"- {k}: {v}" for k, v in context.items())
+            + "\n\nReturn only the post text. Must be under 280 characters total."
+        )
         try:
             response = await self._llm.ainvoke(prompt)
             post = response.content if hasattr(response, "content") else str(response)
-            post = post.strip().strip('"').strip("'")
-            return post[:280]
+            return post.strip().strip('"').strip("'")[:280]
         except Exception as e:
-            logger.error("x_post_generation_failed", error=str(e))
-            return f"RTK-1 AI red team campaign complete. ASR: {context.get('asr', 0)}% #AIRedTeaming #LLMSecurity"
+            logger.error("x_generate_failed", error=str(e))
+            return (
+                f"RTK-1 autonomous red teaming complete. ASR: {context.get('asr', 0)}% "
+                f"— continuous LLM adversarial testing 24/7. {X_HASHTAGS}"
+            )[:280]
 
-    async def generate_from_campaign(
-        self,
-        asr: float,
-        target_model: str,
-        goal: str,
-        attack_type: str = "crescendo",
-    ) -> Dict[str, str]:
-        """Generate all X post variants for a campaign result."""
-        context = {
-            "asr": asr,
-            "target_model": target_model,
-            "goal": goal[:100],
-            "attack_type": attack_type,
-            "result": "vulnerable" if asr > 20 else "robust",
-        }
+    def post(self, text: str) -> Dict[str, Any]:
+        """Publish a post to X."""
+        try:
+            client = self._get_client()
+            response = client.create_tweet(text=text)
+            tweet_id = response.data["id"]
+            url = f"https://x.com/RTKSec/status/{tweet_id}"
+            logger.info("x_post_published", tweet_id=tweet_id, url=url)
+            return {"success": True, "tweet_id": tweet_id, "url": url, "text": text}
+        except Exception as e:
+            logger.error("x_post_failed", error=str(e))
+            return {"success": False, "error": str(e), "text": text}
 
-        posts = {}
-        for template in X_TEMPLATES:
-            posts[template] = await self.generate(template, context)
-
-        logger.info("x_posts_generated", asr=asr, templates=list(posts.keys()))
-        return posts
-
-    def _format_context(self, context: Dict[str, Any]) -> str:
-        return "\n".join(f"- {k}: {v}" for k, v in context.items())
-
-
-x_post_generator = XPostGenerator()
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# ENHANCED LINKEDIN POST GENERATOR — Objective 93
-# ══════════════════════════════════════════════════════════════════════════════
-
-LINKEDIN_TEMPLATES = {
-    "enterprise_win": (
-        "Write a LinkedIn post announcing an enterprise AI red team win. "
-        "Hook + insight + methodology + CTA. Professional, credible, 150-200 words. "
-        "No buzzword soup. Use first-person 'we' voice."
-    ),
-    "asr_improvement": (
-        "Write a LinkedIn post about an AI model robustness improvement. "
-        "Frame ASR reduction as business value — risk reduced, compliance achieved. "
-        "150-200 words. Include a specific metric."
-    ),
-    "new_provider": (
-        "Write a LinkedIn post announcing a new red team capability. "
-        "Technical but accessible. Explain why it matters for enterprise AI safety. "
-        "150-200 words."
-    ),
-    "regulatory_milestone": (
-        "Write a LinkedIn post about achieving a regulatory compliance milestone. "
-        "Reference specific framework (NDAA, NIST, EU AI Act). "
-        "150-200 words. Professional tone."
-    ),
-    "research_finding": (
-        "Write a LinkedIn post sharing an AI security research finding. "
-        "Responsible disclosure framing. What was found, why it matters, what was fixed. "
-        "150-200 words."
-    ),
-}
-
-
-class LinkedInPostGenerator:
-    """
-    Generates campaign-specific LinkedIn posts with compliance framing.
-    Enhanced version with 5 templates vs original 1.
-    """
-
-    def __init__(self, llm: Optional[Any] = None):
-        self._llm = llm or ChatAnthropic(
-            model=settings.default_model,
-            temperature=0.7,
-            max_tokens=500,
-            anthropic_api_key=settings.anthropic_api_key,
-        )
-
-    async def generate(
+    async def generate_and_post(
         self,
         template: str,
         context: Dict[str, Any],
-    ) -> str:
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        text = await self.generate_post(template, context)
+        if dry_run:
+            logger.info("x_dry_run", text=text)
+            return {"success": True, "dry_run": True, "text": text}
+        return self.post(text)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# LINKEDIN AUTO-POSTER
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+class LinkedInPoster:
+    """Posts to LinkedIn via UGC Posts API v2."""
+
+    def __init__(self):
+        self._llm = ChatAnthropic(
+            model=settings.default_model,
+            temperature=0.7,
+            max_tokens=600,
+            anthropic_api_key=settings.anthropic_api_key,
+        )
+
+    async def generate_post(self, template: str, context: Dict[str, Any]) -> str:
+        """Generate SEO-optimized LinkedIn post using Claude."""
         instruction = LINKEDIN_TEMPLATES.get(
             template, LINKEDIN_TEMPLATES["enterprise_win"]
         )
-        prompt = f"""{instruction}
-
-Context:
-{chr(10).join(f"- {k}: {v}" for k, v in context.items())}
-
-Return only the post text."""
-
+        prompt = (
+            f"{instruction}\n\n"
+            f"Context:\n"
+            + "\n".join(f"- {k}: {v}" for k, v in context.items())
+            + "\n\nReturn only the post text. No subject line, no preamble."
+        )
         try:
             response = await self._llm.ainvoke(prompt)
             return response.content if hasattr(response, "content") else str(response)
         except Exception as e:
-            logger.error("linkedin_generation_failed", error=str(e))
-            return f"RTK-1 completed an AI red team campaign. ASR: {context.get('asr', 0)}%"
+            logger.error("linkedin_generate_failed", error=str(e))
+            return (
+                f"RTK-1 completed an AI red teaming campaign. "
+                f"ASR: {context.get('asr', 0)}% — EU AI Act compliance validated. "
+                f"#AIRedTeaming #LLMSecurity #EUAIAct"
+            )
 
-    async def generate_all_templates(
+    def _get_author_urn(self, access_token: str) -> str:
+        """Fetch LinkedIn member URN via OpenID Connect userinfo endpoint."""
+        import httpx
+
+        headers = {"Authorization": f"Bearer {access_token}"}
+        resp = httpx.get(
+            "https://api.linkedin.com/v2/userinfo",
+            headers=headers,
+            timeout=15,
+        )
+        resp.raise_for_status()
+        sub = resp.json().get("sub")
+        if not sub:
+            raise RuntimeError("Could not retrieve LinkedIn member URN from userinfo")
+        return f"urn:li:person:{sub}"
+
+        # Try /v2/me first (works with w_member_social scope)
+        try:
+            resp = httpx.get(
+                "https://api.linkedin.com/v2/me",
+                headers=headers,
+                timeout=15,
+            )
+            resp.raise_for_status()
+            member_id = resp.json().get("id")
+            if member_id:
+                return f"urn:li:person:{member_id}"
+        except Exception:
+            pass
+
+        # Fallback to userinfo (requires openid scope)
+        resp = httpx.get(
+            "https://api.linkedin.com/v2/userinfo",
+            headers=headers,
+            timeout=15,
+        )
+        resp.raise_for_status()
+        sub = resp.json().get("sub")
+        if not sub:
+            raise RuntimeError("Could not retrieve LinkedIn member URN")
+        return f"urn:li:person:{sub}"
+
+    def post(self, text: str) -> Dict[str, Any]:
+        """Publish a post to LinkedIn."""
+        import httpx
+
+        access_token = os.environ.get("LINKEDIN_ACCESS_TOKEN", "")
+        if not access_token:
+            return {"success": False, "error": "LINKEDIN_ACCESS_TOKEN not set in .env"}
+
+        try:
+            headers = {
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "application/json",
+                "X-Restli-Protocol-Version": "2.0.0",
+            }
+
+            author_urn = self._get_author_urn(access_token)
+
+            payload = {
+                "author": author_urn,
+                "lifecycleState": "PUBLISHED",
+                "specificContent": {
+                    "com.linkedin.ugc.ShareContent": {
+                        "shareCommentary": {"text": text},
+                        "shareMediaCategory": "NONE",
+                    }
+                },
+                "visibility": {"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC"},
+            }
+
+            resp = httpx.post(
+                "https://api.linkedin.com/v2/ugcPosts",
+                headers=headers,
+                json=payload,
+                timeout=15,
+            )
+            resp.raise_for_status()
+
+            post_id = resp.headers.get("x-restli-id", "unknown")
+            url = f"https://www.linkedin.com/feed/update/{post_id}"
+            logger.info("linkedin_post_published", post_id=post_id, url=url)
+            return {"success": True, "post_id": post_id, "url": url, "text": text}
+
+        except Exception as e:
+            logger.error("linkedin_post_failed", error=str(e))
+            return {"success": False, "error": str(e), "text": text}
+
+    async def generate_and_post(
         self,
-        asr: float,
-        target_model: str,
-        goal: str,
-        previous_asr: Optional[float] = None,
-    ) -> Dict[str, str]:
-        context = {
-            "asr": asr,
-            "target_model": target_model,
-            "goal": goal[:100],
-            "asr_delta": round(previous_asr - asr, 1) if previous_asr else "N/A",
-            "result": "robust" if asr < 20 else "improvements identified",
-        }
-        posts = {}
-        for template in LINKEDIN_TEMPLATES:
-            posts[template] = await self.generate(template, context)
-        return posts
-
-
-linkedin_generator = LinkedInPostGenerator()
+        template: str,
+        context: Dict[str, Any],
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        text = await self.generate_post(template, context)
+        if dry_run:
+            logger.info("linkedin_dry_run", text_preview=text[:100])
+            return {"success": True, "dry_run": True, "text": text}
+        return self.post(text)
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PROFILE SYNC — Objective 95
+# PROFILE SYNC — one call posts to all platforms
 # ══════════════════════════════════════════════════════════════════════════════
 
 
 class ProfileSync:
     """
-    Keeps GitHub, LinkedIn, X aligned on RTK-1 milestones.
-    Triggers: new release tag, new compliance coverage, test milestone.
+    Syncs X and LinkedIn from a single campaign milestone event.
+    Called from delivery bundle endpoint after every campaign.
+    dry_run=True generates content without posting — use for preview.
     """
 
     def __init__(self):
-        self._x_gen = x_post_generator
-        self._li_gen = linkedin_generator
+        self._x = XPoster()
+        self._li = LinkedInPoster()
 
     async def sync_on_campaign_milestone(
         self,
@@ -214,46 +352,57 @@ class ProfileSync:
         target_model: str,
         goal: str,
         trigger: str = "campaign_complete",
+        dry_run: bool = False,
     ) -> Dict[str, Any]:
-        """Generate all social content for a campaign milestone."""
         context = {
             "asr": asr,
             "target_model": target_model,
             "goal": goal[:100],
             "trigger": trigger,
+            "result": "model is robust"
+            if asr < 20
+            else f"vulnerabilities identified — ASR {asr}%",
+            "platform": "RTK-1 autonomous AI red teaming platform",
         }
 
-        x_posts = await self._x_gen.generate_from_campaign(
-            asr=asr,
-            target_model=target_model,
-            goal=goal,
-        )
+        x_template = "asr_improvement" if asr < 20 else "technical_insight"
+        li_template = "enterprise_win" if asr < 20 else "asr_improvement"
 
-        li_post = await self._li_gen.generate(
-            template="enterprise_win" if asr < 20 else "asr_improvement",
-            context=context,
-        )
+        x_result = await self._x.generate_and_post(x_template, context, dry_run)
+        li_result = await self._li.generate_and_post(li_template, context, dry_run)
 
         result = {
             "trigger": trigger,
-            "x_posts": x_posts,
-            "linkedin_post": li_post,
-            "github_tag": f"v{self._suggest_version_tag(asr)}",
-            "sync_ready": True,
+            "dry_run": dry_run,
+            "x": x_result,
+            "linkedin": li_result,
+            "seo_keywords_injected": PRIMARY_KEYWORDS[:2],
         }
 
         logger.info(
             "profile_sync_complete",
             trigger=trigger,
             asr=asr,
-            platforms=["x", "linkedin", "github"],
+            x_success=x_result.get("success"),
+            linkedin_success=li_result.get("success"),
+            dry_run=dry_run,
         )
-
         return result
 
-    def _suggest_version_tag(self, asr: float) -> str:
-        """Suggest a semantic version tag based on ASR improvement."""
-        return "0.5.1" if asr < 20 else "0.5.0-rc"
+    async def post_custom(
+        self,
+        x_template: str,
+        li_template: str,
+        context: Dict[str, Any],
+        dry_run: bool = False,
+    ) -> Dict[str, Any]:
+        """Post with explicitly chosen templates."""
+        x_result = await self._x.generate_and_post(x_template, context, dry_run)
+        li_result = await self._li.generate_and_post(li_template, context, dry_run)
+        return {"x": x_result, "linkedin": li_result, "dry_run": dry_run}
 
 
+# ── Singletons ────────────────────────────────────────────────────────────────
+x_poster = XPoster()
+linkedin_poster = LinkedInPoster()
 profile_sync = ProfileSync()
