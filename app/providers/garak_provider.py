@@ -62,7 +62,7 @@ class GarakProvider(AttackProvider):
 
     tool_name = "garak"
 
-    def __init__(self, probe_categories: Optional[List[str]] = None):
+    def __init__(self, llm=None, probe_categories: Optional[List[str]] = None):
         self._available = False
         self._probe_categories = probe_categories or ["prompt_injection", "jailbreak"]
         self._load()

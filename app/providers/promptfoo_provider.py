@@ -47,7 +47,7 @@ class PromptfooProvider(AttackProvider):
 
     tool_name = "promptfoo"
 
-    def __init__(self):
+    def __init__(self, llm=None):
         self._available = False
         self._load()
 

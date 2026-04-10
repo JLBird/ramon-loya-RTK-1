@@ -111,6 +111,8 @@ Return ONLY valid JSON:
     try:
         response = await facade.ainvoke(prompt)
         raw = response.content.strip()
+        raw = re.sub(r"```json\s*", "", raw)
+        raw = re.sub(r"```\s*", "", raw)
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
             findings = json.loads(match.group())
@@ -172,6 +174,8 @@ Return ONLY valid JSON:
     try:
         response = await facade.ainvoke(prompt)
         raw = response.content.strip()
+        raw = re.sub(r"```json\s*", "", raw)
+        raw = re.sub(r"```\s*", "", raw)
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
             plan = json.loads(match.group())
@@ -246,6 +250,8 @@ Return ONLY valid JSON:
 
     response = await facade.ainvoke(prompt)
     raw = response.content.strip()
+    raw = re.sub(r"```json\s*", "", raw)
+    raw = re.sub(r"```\s*", "", raw)
     match = re.search(r"\{.*\}", raw, re.DOTALL)
     if not match:
         raise ValueError(f"No valid JSON in supervisor response: {raw}")
@@ -507,6 +513,8 @@ Return ONLY valid JSON:
     try:
         response = await facade.ainvoke(prompt)
         raw = response.content.strip()
+        raw = re.sub(r"```json\s*", "", raw)
+        raw = re.sub(r"```\s*", "", raw)
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
             evaluation = json.loads(match.group())
