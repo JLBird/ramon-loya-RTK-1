@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="RTK-1 â€” Autonomous AI red teaming platform. Continuous LLM security testing, EU AI Act compliance, NIST AI RMF, OWASP LLM Top 10. Built for enterprise and federal deployments.">
+<meta name="description" content="RTK-1 - Autonomous AI red teaming platform. Continuous LLM security testing, EU AI Act compliance, NIST AI RMF, OWASP LLM Top 10. Built for enterprise and federal deployments.">
 <meta name="keywords" content="AI red teaming, LLM security testing, EU AI Act compliance, autonomous red teaming, prompt injection testing, AI safety validation, NIST AI RMF compliance, OWASP LLM Top 10, automated AI red teaming platform, continuous LLM adversarial testing">
-<meta property="og:title" content="RTK Security Labs â€” Autonomous AI Red Teaming">
+<meta property="og:title" content="RTK Security Labs - Autonomous AI Red Teaming">
 <meta property="og:description" content="The only autonomous AI red teaming platform with NDAA 1512 federal reporting, EU AI Act compliance, and continuous LLM adversarial testing.">
 <meta property="og:url" content="https://jlbird.github.io/ramon-loya-RTK-1/">
-<title>RTK Security Labs â€” Autonomous AI Red Teaming Platform</title>
+<title>RTK Security Labs - Autonomous AI Red Teaming Platform</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
@@ -27,9 +27,9 @@
   --gray-light: #A8B2C0;
   --green: #22C55E;
   --blue: #3B82F6;
-  --font-display: 'Syne', 'Arial Black', Arial, sans-serif;
-  --font-mono: 'DM Mono', 'Courier New', monospace;
-  --font-body: 'DM Sans', Arial, sans-serif;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --font-body: 'DM Sans', sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,7 +45,7 @@ body {
   overflow-x: hidden;
 }
 
-/* â”€â”€ NOISE TEXTURE â”€â”€ */
+/* ── NOISE TEXTURE ── */
 body::before {
   content: '';
   position: fixed;
@@ -56,7 +56,7 @@ body::before {
   opacity: 0.4;
 }
 
-/* â”€â”€ NAV â”€â”€ */
+/* ── NAV ── */
 nav {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -145,7 +145,7 @@ nav {
   transition: all 0.3s;
 }
 
-/* â”€â”€ MOBILE NAV â”€â”€ */
+/* ── MOBILE NAV ── */
 .mobile-menu {
   display: none;
   position: fixed;
@@ -173,7 +173,7 @@ nav {
 
 .mobile-menu a:last-child { border-bottom: none; color: var(--red); }
 
-/* â”€â”€ HERO â”€â”€ */
+/* ── HERO ── */
 .hero {
   min-height: 100vh;
   display: flex;
@@ -331,7 +331,7 @@ nav {
   margin-top: 2px;
 }
 
-/* â”€â”€ SECTION BASE â”€â”€ */
+/* ── SECTION BASE ── */
 section {
   padding: 96px 5vw;
   position: relative;
@@ -364,7 +364,7 @@ section {
   margin-bottom: 56px;
 }
 
-/* â”€â”€ TICKER â”€â”€ */
+/* ── TICKER ── */
 .ticker-wrap {
   background: var(--surface);
   border-top: 1px solid var(--border);
@@ -402,7 +402,7 @@ section {
   to { transform: translateX(-50%); }
 }
 
-/* â”€â”€ HOW IT WORKS â”€â”€ */
+/* ── HOW IT WORKS ── */
 .how-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -447,7 +447,7 @@ section {
   font-weight: 300;
 }
 
-/* â”€â”€ PROVIDERS â”€â”€ */
+/* ── PROVIDERS ── */
 .providers-section { background: var(--surface); }
 
 .providers-grid {
@@ -509,7 +509,7 @@ section {
   font-weight: 300;
 }
 
-/* â”€â”€ COMPLIANCE â”€â”€ */
+/* ── COMPLIANCE ── */
 .compliance-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -570,13 +570,13 @@ section {
 }
 
 .compliance-items li::before {
-  content: 'â†’';
+  content: '>';
   color: var(--red);
   opacity: 0.6;
   font-size: 0.65rem;
 }
 
-/* â”€â”€ PRICING â”€â”€ */
+/* ── PRICING ── */
 .pricing-section { background: var(--surface); }
 
 .pricing-grid {
@@ -675,7 +675,7 @@ section {
 }
 
 .pricing-features li::before {
-  content: 'âœ“';
+  content: '+';
   color: var(--green);
   font-size: 0.75rem;
   font-weight: 700;
@@ -715,7 +715,7 @@ section {
   box-shadow: 0 4px 20px var(--red-glow);
 }
 
-/* â”€â”€ PROOF â”€â”€ */
+/* ── PROOF ── */
 .proof-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -766,7 +766,7 @@ section {
   line-height: 1.5;
 }
 
-/* â”€â”€ CTA â”€â”€ */
+/* ── CTA ── */
 .cta-section {
   text-align: center;
   padding: 120px 5vw;
@@ -801,7 +801,7 @@ section {
   justify-content: center;
 }
 
-/* â”€â”€ FOOTER â”€â”€ */
+/* ── FOOTER ── */
 footer {
   border-top: 1px solid var(--border);
   padding: 48px 5vw 32px;
@@ -884,7 +884,7 @@ footer {
   border-radius: 100px;
 }
 
-/* â”€â”€ SCROLL ANIMATIONS â”€â”€ */
+/* ── SCROLL ANIMATIONS ── */
 .fade-up {
   opacity: 1;
   transform: translateY(0);
@@ -896,7 +896,7 @@ footer {
   transform: translateY(0);
 }
 
-/* â”€â”€ MOBILE RESPONSIVE â”€â”€ */
+/* ── MOBILE RESPONSIVE ── */
 @media (max-width: 768px) {
   nav { padding: 0 20px; }
   .nav-links { display: none; }
@@ -957,18 +957,18 @@ footer {
   <a href="#providers" onclick="toggleMenu()">Providers</a>
   <a href="#compliance" onclick="toggleMenu()">Compliance</a>
   <a href="#pricing" onclick="toggleMenu()">Pricing</a>
-  <a href="/cdn-cgi/l/email-protection#4a382b2725240a383e21392f293f38233e33262b283964292527" onclick="toggleMenu()">Get a Report â†’</a>
+  <a href="/cdn-cgi/l/email-protection#4a382b2725240a383e21392f293f38233e33262b283964292527" onclick="toggleMenu()">Get a Report ></a>
 </div>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-grid"></div>
   <div class="hero-glow"></div>
-  <div class="hero-badge">LIVE â€” AUTONOMOUS AI RED TEAMING</div>
+  <div class="hero-badge">LIVE - AUTONOMOUS AI RED TEAMING</div>
   <h1>Your AI model.<br><em>Under attack.</em><br>24 hours a day.</h1>
-  <p class="hero-sub">RTK-1 is the only autonomous AI red teaming platform with built-in EU AI Act compliance, NDAA 1512 federal reporting, and continuous LLM adversarial testing â€” all without human intervention.</p>
+  <p class="hero-sub">RTK-1 is the only autonomous AI red teaming platform with built-in EU AI Act compliance, NDAA 1512 federal reporting, and continuous LLM adversarial testing - all without human intervention.</p>
   <div class="hero-actions">
-    <a href="/cdn-cgi/l/email-protection#0e7c6f6361604e7c7a657d6b6d7b7c677a77626f6c7d206d6163317d7b6c646b6d7a335c5a45233f2e4b60696f696b636b607a2e5c6b7f7b6b7d7a" class="btn-primary">Request a Report â†’</a>
+    <a href="/cdn-cgi/l/email-protection#0e7c6f6361604e7c7a657d6b6d7b7c677a77626f6c7d206d6163317d7b6c646b6d7a335c5a45233f2e4b60696f696b636b607a2e5c6b7f7b6b7d7a" class="btn-primary">Request a Report ></a>
     <a href="https://github.com/JLBird/ramon-loya-RTK-1" target="_blank" class="btn-secondary">View on GitHub</a>
   </div>
   <div class="hero-stats">
@@ -985,7 +985,7 @@ footer {
       <div class="hero-stat-label">Autonomous Campaigns</div>
     </div>
     <div class="hero-stat">
-      <div class="hero-stat-num">15Ã—</div>
+      <div class="hero-stat-num">15x</div>
       <div class="hero-stat-label">Team Equivalent</div>
     </div>
   </div>
@@ -1021,7 +1021,7 @@ footer {
 <section id="how">
   <div class="section-label">Methodology</div>
   <h2 class="section-title">How RTK-1 works</h2>
-  <p class="section-sub">Autonomous AI red teaming that runs continuously â€” no humans required until the report lands in your inbox.</p>
+  <p class="section-sub">Autonomous AI red teaming that runs continuously - no humans required until the report lands in your inbox.</p>
   <div class="how-grid fade-up">
     <div class="how-card">
       <div class="how-num">01</div>
@@ -1031,7 +1031,7 @@ footer {
     <div class="how-card">
       <div class="how-num">02</div>
       <h3>Autonomous Execution</h3>
-      <p>RTK-1 runs Crescendo multi-turn escalations, tool abuse sequences, RAG injection, and agentic chain exploits across 13 providers â€” in parallel, continuously.</p>
+      <p>RTK-1 runs Crescendo multi-turn escalations, tool abuse sequences, RAG injection, and agentic chain exploits across 13 providers - in parallel, continuously.</p>
     </div>
     <div class="how-card">
       <div class="how-num">03</div>
@@ -1050,15 +1050,15 @@ footer {
 <section id="providers" class="providers-section">
   <div class="section-label">Attack Surface</div>
   <h2 class="section-title">13 attack providers.<br>Every vector covered.</h2>
-  <p class="section-sub">From multi-turn prompt injection to SCADA system manipulation â€” RTK-1 covers the complete OWASP LLM Top 10 attack surface and beyond.</p>
+  <p class="section-sub">From multi-turn prompt injection to SCADA system manipulation - RTK-1 covers the complete OWASP LLM Top 10 attack surface and beyond.</p>
   <div class="providers-grid fade-up">
     <div class="provider-card">
       <div class="provider-tag">LLM01</div>
-      <h3>Crescendo â€” PyRIT 0.12.0</h3>
+      <h3>Crescendo - PyRIT 0.12.0</h3>
       <p>Multi-turn escalation campaigns that build adversarial pressure over 8+ turns. The most effective LLM security testing vector for production models.</p>
     </div>
     <div class="provider-card">
-      <div class="provider-tag">LLM01 Â· LLM06</div>
+      <div class="provider-tag">LLM01 . LLM06</div>
       <h3>Garak 0.14.1</h3>
       <p>100+ failure modes across 20+ model APIs. Systematic prompt injection testing with automated scoring and regression detection.</p>
     </div>
@@ -1075,11 +1075,11 @@ footer {
     <div class="provider-card">
       <div class="provider-tag">GSA Federal</div>
       <h3>Neutrality Check</h3>
-      <p>Political bias, sycophancy detection, and factual accuracy under adversarial pressure. Scores 0â€“100 against GSA federal procurement neutrality standard.</p>
+      <p>Political bias, sycophancy detection, and factual accuracy under adversarial pressure. Scores 0–100 against GSA federal procurement neutrality standard.</p>
     </div>
     <div class="provider-card">
       <div class="provider-tag">NDAA 1535</div>
-      <h3>Digital Twin â€” SCADA</h3>
+      <h3>Digital Twin - SCADA</h3>
       <p>Red teams AI controlling physical infrastructure: SCADA systems, industrial IoT, autonomous vehicles, and drone flight controllers.</p>
     </div>
   </div>
@@ -1095,40 +1095,40 @@ footer {
       <div class="compliance-icon">EU AI ACT</div>
       <h3>EU AI Act</h3>
       <ul class="compliance-items">
-        <li>Article 9 â€” Risk management</li>
-        <li>Article 14 â€” Human oversight</li>
-        <li>Article 15 â€” Robustness</li>
-        <li>Annex IV â€” Documentation</li>
-        <li>Article 72 â€” Post-market monitoring</li>
+        <li>Article 9 - Risk management</li>
+        <li>Article 14 - Human oversight</li>
+        <li>Article 15 - Robustness</li>
+        <li>Annex IV - Documentation</li>
+        <li>Article 72 - Post-market monitoring</li>
       </ul>
     </div>
     <div class="compliance-card">
       <div class="compliance-icon">NIST AI RMF</div>
       <h3>NIST AI RMF</h3>
       <ul class="compliance-items">
-        <li>GOVERN 1.2 â€” Scope</li>
-        <li>MEASURE 2.4 â€” Safety risk</li>
-        <li>MEASURE 2.7 â€” Adversarial T&E</li>
-        <li>MANAGE 4.1 â€” Residual risk</li>
+        <li>GOVERN 1.2 - Scope</li>
+        <li>MEASURE 2.4 - Safety risk</li>
+        <li>MEASURE 2.7 - Adversarial T&E</li>
+        <li>MANAGE 4.1 - Residual risk</li>
       </ul>
     </div>
     <div class="compliance-card">
       <div class="compliance-icon">OWASP LLM</div>
       <h3>OWASP LLM Top 10</h3>
       <ul class="compliance-items">
-        <li>LLM01 â€” Prompt Injection</li>
-        <li>LLM02 â€” Insecure Output</li>
-        <li>LLM06 â€” Sensitive Disclosure</li>
-        <li>LLM08 â€” Excessive Agency</li>
+        <li>LLM01 - Prompt Injection</li>
+        <li>LLM02 - Insecure Output</li>
+        <li>LLM06 - Sensitive Disclosure</li>
+        <li>LLM08 - Excessive Agency</li>
       </ul>
     </div>
     <div class="compliance-card">
       <div class="compliance-icon">MITRE ATLAS</div>
       <h3>MITRE ATLAS</h3>
       <ul class="compliance-items">
-        <li>AML.T0054 â€” Multi-turn attacks</li>
-        <li>AML.T0051 â€” Jailbreak</li>
-        <li>AML.T0043 â€” Adversarial data</li>
+        <li>AML.T0054 - Multi-turn attacks</li>
+        <li>AML.T0051 - Jailbreak</li>
+        <li>AML.T0043 - Adversarial data</li>
       </ul>
     </div>
     <div class="compliance-card">
@@ -1146,7 +1146,7 @@ footer {
       <div class="compliance-icon">GSA FEDERAL</div>
       <h3>GSA Procurement</h3>
       <ul class="compliance-items">
-        <li>Neutrality Score 0â€“100</li>
+        <li>Neutrality Score 0–100</li>
         <li>Sycophancy detection</li>
         <li>Factual accuracy under pressure</li>
         <li>Objective truth standard</li>
@@ -1179,7 +1179,7 @@ footer {
     <div class="proof-card">
       <div class="proof-card-label">FRAMEWORK COVERAGE</div>
       <div class="proof-metric">6</div>
-      <p class="proof-desc">EU AI Act, NIST AI RMF, OWASP LLM Top 10, MITRE ATLAS, NDAA 1512 + 1535 â€” every report, automatically.</p>
+      <p class="proof-desc">EU AI Act, NIST AI RMF, OWASP LLM Top 10, MITRE ATLAS, NDAA 1512 + 1535 - every report, automatically.</p>
     </div>
   </div>
 </section>
@@ -1194,7 +1194,7 @@ footer {
     <div class="pricing-card">
       <div class="pricing-tier-label">Starter</div>
       <div class="pricing-price">$25,000</div>
-      <div class="pricing-desc">Flat fee Â· one-time assessment</div>
+      <div class="pricing-desc">Flat fee . one-time assessment</div>
       <ul class="pricing-features">
         <li>One Crescendo campaign</li>
         <li>Full compliance PDF report</li>
@@ -1210,7 +1210,7 @@ footer {
       <div class="pricing-featured-badge">MOST POPULAR</div>
       <div class="pricing-tier-label">Professional</div>
       <div class="pricing-price">$41,667<span>/mo</span></div>
-      <div class="pricing-desc">Monthly retainer Â· $500K/yr</div>
+      <div class="pricing-desc">Monthly retainer . $500K/yr</div>
       <ul class="pricing-features">
         <li>Monthly campaign + report</li>
         <li>All compliance frameworks</li>
@@ -1226,7 +1226,7 @@ footer {
     <div class="pricing-card">
       <div class="pricing-tier-label">Enterprise</div>
       <div class="pricing-price">$83,333<span>/mo</span></div>
-      <div class="pricing-desc">Monthly retainer Â· $1M/yr</div>
+      <div class="pricing-desc">Monthly retainer . $1M/yr</div>
       <ul class="pricing-features">
         <li>Unlimited campaigns</li>
         <li>All 13 providers active</li>
@@ -1242,7 +1242,7 @@ footer {
     <div class="pricing-card">
       <div class="pricing-tier-label">Federal</div>
       <div class="pricing-price">$250,000<span>/mo</span></div>
-      <div class="pricing-desc">Monthly retainer Â· $3M/yr</div>
+      <div class="pricing-desc">Monthly retainer . $3M/yr</div>
       <ul class="pricing-features">
         <li>NDAA Section 1512 package</li>
         <li>DHS AI-ISAC VDP disclosure</li>
@@ -1265,8 +1265,8 @@ footer {
   <h2 class="section-title">Your AI model has<br>never been attacked.<br><em>It will be.</em></h2>
   <p class="section-sub">Find the vulnerabilities before your adversaries do. RTK-1 runs the first campaign in 48 hours.</p>
   <div class="cta-actions">
-    <a href="/cdn-cgi/l/email-protection#b6c4d7dbd9d8f6c4c2ddc5d3d5c3c4dfc2cfdad7d4c598d5d9db89c5c3d4dcd3d5c28be4e2fd9b8796f3d8d1d7d1d3dbd3d8c296e4d3c7c3d3c5c2" class="btn-primary">Request a Report â†’</a>
-    <a href="https://github.com/JLBird/ramon-loya-RTK-1" target="_blank" class="btn-secondary">View GitHub â†’</a>
+    <a href="/cdn-cgi/l/email-protection#b6c4d7dbd9d8f6c4c2ddc5d3d5c3c4dfc2cfdad7d4c598d5d9db89c5c3d4dcd3d5c28be4e2fd9b8796f3d8d1d7d1d3dbd3d8c296e4d3c7c3d3c5c2" class="btn-primary">Request a Report ></a>
+    <a href="https://github.com/JLBird/ramon-loya-RTK-1" target="_blank" class="btn-secondary">View GitHub ></a>
   </div>
 </section>
 
@@ -1275,7 +1275,7 @@ footer {
   <div class="footer-top">
     <div>
       <div class="footer-brand">RTK Security <span>Labs</span></div>
-      <p class="footer-tagline">Autonomous AI red teaming platform. LLM security testing, EU AI Act compliance, and continuous adversarial testing â€” built for enterprise and federal deployments.</p>
+      <p class="footer-tagline">Autonomous AI red teaming platform. LLM security testing, EU AI Act compliance, and continuous adversarial testing - built for enterprise and federal deployments.</p>
     </div>
     <div class="footer-links">
       <a href="https://github.com/JLBird/ramon-loya-RTK-1" target="_blank">GitHub Repository</a>
@@ -1285,7 +1285,7 @@ footer {
     </div>
   </div>
   <div class="footer-bottom">
-    <div class="footer-copy">Â© 2026 RTK Security Labs Â· Ramon Loya Â· Seguin, TX Â· Authorized testing only</div>
+    <div class="footer-copy">© 2026 RTK Security Labs . Ramon Loya . Seguin, TX . Authorized testing only</div>
     <div class="footer-badges">
       <span class="badge">EU AI ACT</span>
       <span class="badge">NIST AI RMF</span>
@@ -1313,6 +1313,3 @@ document.addEventListener('click', function(e) {
 
 // Smooth nav links
 document.querySelectorAll('a
-
-
-
