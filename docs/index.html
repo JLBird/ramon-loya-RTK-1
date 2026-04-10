@@ -27,9 +27,9 @@
   --gray-light: #A8B2C0;
   --green: #22C55E;
   --blue: #3B82F6;
-  --font-display: 'Syne', sans-serif;
-  --font-mono: 'DM Mono', monospace;
-  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Syne', 'Arial Black', Arial, sans-serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+  --font-body: 'DM Sans', Arial, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -886,8 +886,8 @@ footer {
 
 /* â”€â”€ SCROLL ANIMATIONS â”€â”€ */
 .fade-up {
-  opacity: 0;
-  transform: translateY(24px);
+  opacity: 1;
+  transform: translateY(0);
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
@@ -1313,3 +1313,5 @@ document.addEventListener('click', function(e) {
 
 // Smooth nav links
 document.querySelectorAll('a
+
+
