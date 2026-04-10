@@ -1,6 +1,6 @@
 [project]
 name = "rtk-1"
-version = "0.1.0"
+version = "0.5.0"
 description = "Claude-orchestrated AI Red Teaming Toolkit"
 requires-python = ">=3.10"          # ← Updated to allow Python 3.14
 dependencies = [
