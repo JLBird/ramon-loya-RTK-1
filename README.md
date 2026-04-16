@@ -1,3 +1,5 @@
+> ⚠️ **IP Notice:** RTK-1 methodology, attack provider architecture, C1/C2 execution gate framework, and report format are proprietary trade secrets of RTK Security Labs protected under 18 U.S.C. § 1836 (Defend Trade Secrets Act) and Tex. Civ. Prac. & Rem. Code § 134A (Texas Uniform Trade Secrets Act). Unauthorized reproduction or commercial use is prohibited.
+
 <div align="center">
 
 # ⚔️ RTK-1
