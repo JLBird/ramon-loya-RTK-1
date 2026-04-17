@@ -1,1351 +1,482 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="RTK-1 - Autonomous AI red teaming platform. Continuous LLM security testing, EU AI Act compliance, NIST AI RMF, OWASP LLM Top 10. Built for enterprise and federal deployments.">
-<meta name="keywords" content="AI red teaming, LLM security testing, EU AI Act compliance, autonomous red teaming, prompt injection testing, AI safety validation, NIST AI RMF compliance, OWASP LLM Top 10, automated AI red teaming platform, continuous LLM adversarial testing">
-<meta property="og:title" content="RTK Security Labs - Autonomous AI Red Teaming">
-<meta property="og:description" content="The only autonomous AI red teaming platform with NDAA 1512 federal reporting, EU AI Act compliance, and continuous LLM adversarial testing.">
-<meta property="og:url" content="https://jlbird.github.io/ramon-loya-RTK-1/">
-<title>RTK-1 | Autonomous AI Red Teaming | EU AI Act Compliance | NIST AI RMF | OWASP LLM Top 10 | RTK Security 
-  Labs</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #080A0F;
-  --surface: #111827;
-  --surface2: #1F2937;
-  --border: rgba(255,255,255,0.12);
-  --border-bright: rgba(255,255,255,0.14);
-  --red: #E83A2F;
-  --red-dim: rgba(232,58,47,0.12);
-  --red-glow: rgba(232,58,47,0.25);
-  --white: #F2F4F8;
-  --gray: #7A8494;
-  --gray-light: #A8B2C0;
-  --green: #22C55E;
-  --blue: #3B82F6;
-  --font-display: 'Syne', sans-serif;
-  --font-mono: 'DM Mono', monospace;
-  --font-body: 'DM Sans', sans-serif;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--white);
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-/* â”€â”€ NOISE TEXTURE â”€â”€ */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.4;
-}
-
-/* â”€â”€ NAV â”€â”€ */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  padding: 0 5vw;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(8,10,15,0.85);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-}
-
-.nav-logo {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: -0.02em;
-  color: var(--white);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nav-logo-dot {
-  width: 8px; height: 8px;
-  background: var(--red);
-  border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-  list-style: none;
-}
-
-.nav-links a {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--gray);
-  text-decoration: none;
-  letter-spacing: 0.05em;
-  transition: color 0.2s;
-}
-
-.nav-links a:hover { color: var(--white); }
-
-.nav-cta {
-  font-family: var(--font-mono);
-  font-size: 0.78rem !important;
-  color: var(--red) !important;
-  border: 1px solid rgba(232,58,47,0.4);
-  padding: 6px 16px;
-  border-radius: 4px;
-  transition: all 0.2s !important;
-}
-
-.nav-cta:hover {
-  background: var(--red-dim) !important;
-  border-color: var(--red) !important;
-  color: var(--white) !important;
-}
-
-.nav-hamburger {
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  cursor: pointer;
-  padding: 4px;
-}
-
-.nav-hamburger span {
-  display: block;
-  width: 22px; height: 2px;
-  background: var(--white);
-  border-radius: 2px;
-  transition: all 0.3s;
-}
-
-/* â”€â”€ MOBILE NAV â”€â”€ */
-.mobile-menu {
-  display: none;
-  position: fixed;
-  top: 64px; left: 0; right: 0;
-  background: rgba(8,10,15,0.97);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 24px 5vw;
-  z-index: 99;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.mobile-menu.open { display: flex; }
-
-.mobile-menu a {
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  color: var(--gray-light);
-  text-decoration: none;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
-  letter-spacing: 0.04em;
-}
-
-.mobile-menu a:last-child { border-bottom: none; color: var(--red); }
-
-/* â”€â”€ HERO â”€â”€ */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 120px 5vw 80px;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 80%);
-}
-
-.hero-glow {
-  position: absolute;
-  top: -20%; left: -10%;
-  width: 60vw; height: 60vw;
-  background: radial-gradient(ellipse, rgba(232,58,47,0.08) 0%, transparent 65%);
-  pointer-events: none;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  color: var(--red);
-  border: 1px solid rgba(232,58,47,0.3);
-  padding: 6px 14px;
-  border-radius: 100px;
-  margin-bottom: 32px;
-  width: fit-content;
-  background: var(--red-dim);
-}
-
-.hero-badge::before {
-  content: '';
-  width: 6px; height: 6px;
-  background: var(--red);
-  border-radius: 50%;
-}
-
-.hero h1 {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(2.6rem, 7vw, 5.5rem);
-  line-height: 1.0;
-  letter-spacing: -0.03em;
-  max-width: 900px;
-  margin-bottom: 28px;
-}
-
-.hero h1 em {
-  font-style: normal;
-  color: var(--red);
-}
-
-.hero-sub {
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  color: var(--gray-light);
-  max-width: 580px;
-  line-height: 1.7;
-  margin-bottom: 48px;
-  font-weight: 300;
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 72px;
-}
-
-.btn-primary {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-  color: var(--white);
-  background: var(--red);
-  border: none;
-  padding: 14px 28px;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-primary:hover {
-  background: #c52d24;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px var(--red-glow);
-}
-
-.btn-secondary {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-  color: var(--gray-light);
-  background: transparent;
-  border: 1px solid var(--border-bright);
-  padding: 14px 28px;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.btn-report {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-  color: #E83A2F;
-  background: rgba(232,58,47,0.08);
-  border: 1px solid rgba(232,58,47,0.5);
-  padding: 14px 28px;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-.btn-report:hover {
-  background: rgba(232,58,47,0.18);
-  border-color: #E83A2F;
-  color: #F2F4F8;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(232,58,47,0.25);
-}
-.btn-secondary:hover {
-  color: var(--white);
-  border-color: rgba(255,255,255,0.3);
-}
-
-.hero-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-  max-width: 700px;
-}
-
-.hero-stat {
-  background: var(--surface);
-  padding: 20px 24px;
-}
-
-.hero-stat-num {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.6rem;
-  color: var(--white);
-  letter-spacing: -0.03em;
-}
-
-.hero-stat-label {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--gray);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin-top: 2px;
-}
-
-/* â”€â”€ SECTION BASE â”€â”€ */
-section {
-  padding: 96px 5vw;
-  position: relative;
-}
-
-.section-label {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--red);
-  margin-bottom: 16px;
-}
-
-.section-title {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: clamp(1.8rem, 4vw, 3rem);
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  margin-bottom: 16px;
-}
-
-.section-sub {
-  color: var(--gray-light);
-  font-size: 1.05rem;
-  max-width: 560px;
-  line-height: 1.7;
-  font-weight: 300;
-  margin-bottom: 56px;
-}
-
-/* â”€â”€ TICKER â”€â”€ */
-.ticker-wrap {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  overflow: hidden;
-  padding: 12px 0;
-}
-
-.ticker {
-  display: flex;
-  gap: 0;
-  animation: ticker 30s linear infinite;
-  white-space: nowrap;
-}
-
-.ticker-item {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  color: var(--gray);
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.ticker-item::after {
-  content: '//';
-  color: var(--red);
-  opacity: 0.5;
-}
-
-@keyframes ticker {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-/* â”€â”€ HOW IT WORKS â”€â”€ */
-.how-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.how-card {
-  background: var(--surface);
-  padding: 36px 32px;
-  position: relative;
-  transition: background 0.2s;
-}
-
-.how-card:hover { background: var(--surface2); }
-
-.how-num {
-  font-family: var(--font-display);
-  font-size: 3rem;
-  font-weight: 800;
-  color: var(--border-bright);
-  line-height: 1;
-  margin-bottom: 20px;
-  letter-spacing: -0.05em;
-}
-
-.how-card h3 {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  letter-spacing: -0.02em;
-}
-
-.how-card p {
-  font-size: 0.9rem;
-  color: var(--gray-light);
-  line-height: 1.65;
-  font-weight: 300;
-}
-
-/* â”€â”€ PROVIDERS â”€â”€ */
-.providers-section { background: var(--surface); }
-
-.providers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-.provider-card {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 28px;
-  background: var(--bg);
-  transition: all 0.25s;
-  position: relative;
-  overflow: hidden;
-}
-
-.provider-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--red);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.3s;
-}
-
-.provider-card:hover::before { transform: scaleX(1); }
-.provider-card:hover { border-color: var(--border-bright); transform: translateY(-2px); }
-
-.provider-tag {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--red);
-  background: var(--red-dim);
-  border: 1px solid rgba(232,58,47,0.2);
-  padding: 3px 10px;
-  border-radius: 100px;
-  display: inline-block;
-  margin-bottom: 14px;
-}
-
-.provider-card h3 {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  letter-spacing: -0.02em;
-}
-
-.provider-card p {
-  font-size: 0.85rem;
-  color: var(--gray);
-  line-height: 1.6;
-  font-weight: 300;
-}
-
-/* â”€â”€ COMPLIANCE â”€â”€ */
-.compliance-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
-
-.compliance-card {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 28px 24px;
-  background: var(--surface);
-  transition: border-color 0.2s;
-}
-
-.compliance-card:hover { border-color: var(--border-bright); }
-
-.compliance-icon {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  color: var(--green);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.compliance-icon::before {
-  content: '';
-  width: 6px; height: 6px;
-  background: var(--green);
-  border-radius: 50%;
-}
-
-.compliance-card h3 {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-  letter-spacing: -0.02em;
-}
-
-.compliance-items {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.compliance-items li {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--gray);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  letter-spacing: 0.02em;
-}
-
-.compliance-items li::before {
-  content: '>';
-  color: var(--red);
-  opacity: 0.6;
-  font-size: 0.65rem;
-}
-
-/* â”€â”€ PRICING â”€â”€ */
-.pricing-section { background: var(--surface); }
-
-.pricing-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 16px;
-  align-items: start;
-}
-
-.pricing-card {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 32px 28px;
-  background: var(--bg);
-  position: relative;
-  transition: all 0.25s;
-}
-
-.pricing-card:hover {
-  border-color: var(--border-bright);
-  transform: translateY(-3px);
-}
-
-.pricing-card.featured {
-  border-color: var(--red);
-  background: linear-gradient(135deg, rgba(232,58,47,0.06) 0%, var(--bg) 60%);
-}
-
-.pricing-featured-badge {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--white);
-  background: var(--red);
-  padding: 4px 14px;
-  border-radius: 100px;
-  white-space: nowrap;
-}
-
-.pricing-tier-label {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gray);
-  margin-bottom: 16px;
-}
-
-.pricing-price {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 2.2rem;
-  letter-spacing: -0.04em;
-  color: var(--white);
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.pricing-price span {
-  font-size: 1rem;
-  font-weight: 400;
-  color: var(--gray);
-  letter-spacing: 0;
-}
-
-.pricing-desc {
-  font-size: 0.82rem;
-  color: var(--gray);
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border);
-  font-weight: 300;
-}
-
-.pricing-features {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 28px;
-}
-
-.pricing-features li {
-  font-size: 0.85rem;
-  color: var(--gray-light);
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  line-height: 1.5;
-  font-weight: 300;
-}
-
-.pricing-features li::before {
-  content: '+';
-  color: var(--green);
-  font-size: 0.75rem;
-  font-weight: 700;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.pricing-btn {
-  display: block;
-  width: 100%;
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  padding: 12px 20px;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: all 0.2s;
-  border: 1px solid var(--border-bright);
-  color: var(--gray-light);
-}
-
-.pricing-btn:hover {
-  border-color: var(--red);
-  color: var(--red);
-  background: var(--red-dim);
-}
-
-.pricing-card.featured .pricing-btn {
-  background: var(--red);
-  border-color: var(--red);
-  color: var(--white);
-}
-
-.pricing-card.featured .pricing-btn:hover {
-  background: #c52d24;
-  box-shadow: 0 4px 20px var(--red-glow);
-}
-
-/* â”€â”€ PROOF â”€â”€ */
-.proof-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 16px;
-}
-
-.proof-card {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 28px;
-  background: var(--surface);
-  font-family: var(--font-mono);
-}
-
-.proof-card-label {
-  font-size: 0.65rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gray);
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.proof-card-label::before {
-  content: '';
-  width: 6px; height: 6px;
-  background: var(--green);
-  border-radius: 50%;
-}
-
-.proof-metric {
-  font-family: var(--font-display);
-  font-size: 2.8rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
-  color: var(--white);
-  line-height: 1;
-  margin-bottom: 8px;
-}
-
-.proof-desc {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  color: var(--gray);
-  font-weight: 300;
-  line-height: 1.5;
-}
-
-/* â”€â”€ CTA â”€â”€ */
-.cta-section {
-  text-align: center;
-  padding: 120px 5vw;
-  position: relative;
-  overflow: hidden;
-}
-
-.cta-glow {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 60vw; height: 60vw;
-  background: radial-gradient(ellipse, rgba(232,58,47,0.07) 0%, transparent 65%);
-  pointer-events: none;
-}
-
-.cta-section .section-title {
-  max-width: 700px;
-  margin: 0 auto 16px;
-}
-
-.cta-section .section-sub {
-  margin: 0 auto 40px;
-  text-align: center;
-  max-width: 480px;
-}
-
-.cta-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  justify-content: center;
-}
-
-/* â”€â”€ FOOTER â”€â”€ */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 48px 5vw 32px;
-}
-
-.footer-top {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 48px;
-  align-items: start;
-  margin-bottom: 40px;
-}
-
-.footer-brand {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.2rem;
-  letter-spacing: -0.02em;
-  margin-bottom: 10px;
-}
-
-.footer-brand span { color: var(--red); }
-
-.footer-tagline {
-  font-size: 0.85rem;
-  color: var(--gray);
-  max-width: 320px;
-  font-weight: 300;
-  line-height: 1.6;
-}
-
-.footer-links {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: flex-end;
-}
-
-.footer-links a {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  color: var(--gray);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.footer-links a:hover { color: var(--white); }
-
-.footer-bottom {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
-}
-
-.footer-copy {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--gray);
-  letter-spacing: 0.04em;
-}
-
-.footer-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.badge {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  color: var(--gray);
-  border: 1px solid var(--border);
-  padding: 3px 10px;
-  border-radius: 100px;
-}
-
-/* â”€â”€ SCROLL ANIMATIONS â”€â”€ */
-.fade-up {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-.fade-up.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* â”€â”€ MOBILE RESPONSIVE â”€â”€ */
-@media (max-width: 768px) {
-  nav { padding: 0 20px; }
-  .nav-links { display: none; }
-  .nav-hamburger { display: flex; }
-
-  .hero { padding: 100px 20px 60px; }
-  .hero h1 { font-size: 2.4rem; }
-  .hero-sub { font-size: 0.95rem; }
-  .hero-actions { flex-direction: column; }
-  .hero-actions a { text-align: center; }
-  .hero-stats { grid-template-columns: repeat(2, 1fr); }
-
-  section { padding: 64px 20px; }
-
-  .how-grid { grid-template-columns: 1fr; }
-  .providers-grid { grid-template-columns: 1fr; }
-  .compliance-grid { grid-template-columns: repeat(2, 1fr); }
-  .pricing-grid { grid-template-columns: 1fr; }
-  .proof-grid { grid-template-columns: 1fr; }
-
-  .footer-top { grid-template-columns: 1fr; }
-  .footer-links { align-items: flex-start; }
-  .footer-bottom { flex-direction: column; align-items: flex-start; }
-
-  .cta-actions { flex-direction: column; align-items: center; }
-}
-
-@media (max-width: 480px) {
-  .hero h1 { font-size: 2rem; }
-  .hero-stats { grid-template-columns: 1fr 1fr; }
-  .compliance-grid { grid-template-columns: 1fr; }
-  .pricing-price { font-size: 1.8rem; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RTK-1 | Autonomous AI Red Teaming | EU AI Act Compliance | NIST AI RMF | OWASP LLM Top 10 | RTK Security Labs</title>
+  <meta name="description" content="RTK-1 is the first autonomous AI red teaming platform. Generates EU AI Act Article 15, NIST AI RMF, and OWASP LLM Top 10 compliance evidence automatically. SHA-256 signed reports. 13 attack providers. RTK Security Labs.">
+  <meta name="keywords" content="AI red teaming, LLM security testing, EU AI Act compliance, autonomous red teaming, prompt injection testing, AI safety validation, NIST AI RMF compliance, OWASP LLM Top 10, automated AI red teaming platform, EU AI Act Article 15 tool, continuous LLM adversarial testing, RTK Security Labs">
+  <meta name="author" content="Ramon Loya, RTK Security Labs">
+  <meta property="og:title" content="RTK-1 | Autonomous AI Red Teaming Platform">
+  <meta property="og:description" content="The first autonomous AI red teaming platform. EU AI Act + NIST AI RMF + OWASP LLM Top 10 compliance evidence generated automatically.">
+  <meta property="og:url" content="https://jlbird.github.io/ramon-loya-RTK-1/">
+  <meta name="robots" content="index, follow">
+  <style>
+    :root {
+      --bg: #0D1117;
+      --bg2: #161B22;
+      --bg3: #1C2128;
+      --border: #30363D;
+      --orange: #C84E00;
+      --orange-light: #E55A00;
+      --text: #E6EDF3;
+      --text2: #8B949E;
+      --green: #3FB950;
+      --blue: #58A6FF;
+      --mono: 'Courier New', monospace;
+      --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.6; }
+    a { color: var(--orange); text-decoration: none; }
+    a:hover { color: var(--orange-light); text-decoration: underline; }
+
+    /* TOP BAR */
+    .topbar { background: var(--orange); padding: 10px 0; text-align: center; font-size: 13px; font-weight: 600; color: #fff; letter-spacing: 0.5px; }
+
+    /* NAV */
+    nav { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+    .nav-logo { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+    .nav-logo span { color: var(--orange); }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a { color: var(--text2); font-size: 14px; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-cta { background: var(--orange); color: #fff; padding: 8px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; }
+    .nav-cta:hover { background: var(--orange-light); text-decoration: none; color: #fff; }
+
+    /* HERO */
+    .hero { padding: 100px 40px 80px; max-width: 1100px; margin: 0 auto; }
+    .hero-badge { display: inline-block; background: rgba(200,78,0,0.15); border: 1px solid rgba(200,78,0,0.4); color: var(--orange); font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; margin-bottom: 24px; letter-spacing: 0.5px; }
+    .hero h1 { font-size: 52px; font-weight: 800; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px; }
+    .hero h1 em { color: var(--orange); font-style: normal; }
+    .hero-sub { font-size: 20px; color: var(--text2); max-width: 680px; margin-bottom: 40px; line-height: 1.7; }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary { background: var(--orange); color: #fff; padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 600; display: inline-block; }
+    .btn-primary:hover { background: var(--orange-light); text-decoration: none; color: #fff; }
+    .btn-secondary { background: transparent; color: var(--text); padding: 14px 28px; border-radius: 8px; font-size: 16px; font-weight: 600; display: inline-block; border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--text2); text-decoration: none; color: var(--text); }
+
+    /* STATS BAR */
+    .stats-bar { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 32px 40px; }
+    .stats-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; }
+    .stat-item { text-align: center; }
+    .stat-num { font-size: 36px; font-weight: 800; color: var(--orange); font-family: var(--mono); }
+    .stat-label { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+    /* SECTION */
+    section { padding: 80px 40px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; }
+    .section-label { font-size: 12px; color: var(--orange); font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+    .section-title { font-size: 36px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.5px; }
+    .section-sub { font-size: 18px; color: var(--text2); max-width: 640px; line-height: 1.7; margin-bottom: 56px; }
+
+    /* ATTACK PROVIDERS GRID */
+    .providers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .provider-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+    .provider-card:hover { border-color: var(--orange); }
+    .provider-tag { display: inline-block; font-family: var(--mono); font-size: 11px; color: var(--blue); background: rgba(88,166,255,0.1); padding: 3px 8px; border-radius: 4px; margin-bottom: 12px; }
+    .provider-name { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .provider-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
+    .provider-owasp { font-size: 12px; color: var(--orange); margin-top: 10px; font-weight: 500; }
+
+    /* COMPLIANCE GRID */
+    .compliance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .compliance-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 28px; }
+    .compliance-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+    .compliance-card p { font-size: 14px; color: var(--text2); line-height: 1.6; }
+    .compliance-tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 4px; margin-bottom: 12px; }
+    .tag-eu { background: rgba(200,78,0,0.15); color: var(--orange); border: 1px solid rgba(200,78,0,0.3); }
+    .tag-nist { background: rgba(88,166,255,0.1); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
+    .tag-owasp { background: rgba(63,185,80,0.1); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+    .tag-mitre { background: rgba(139,148,158,0.1); color: var(--text2); border: 1px solid var(--border); }
+
+    /* PRICING */
+    .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .pricing-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 28px; }
+    .pricing-card.featured { border-color: var(--orange); }
+    .pricing-tier { font-size: 12px; font-weight: 600; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
+    .pricing-price { font-size: 32px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .pricing-price span { font-size: 14px; color: var(--text2); font-weight: 400; }
+    .pricing-desc { font-size: 13px; color: var(--text2); margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .pricing-features { list-style: none; }
+    .pricing-features li { font-size: 13px; color: var(--text2); padding: 5px 0; }
+    .pricing-features li::before { content: "— "; color: var(--orange); }
+    .pricing-note { font-size: 12px; color: var(--text2); text-align: center; margin-top: 32px; }
+
+    /* C1/C2 SECTION */
+    .verdict-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 48px; margin-top: 56px; }
+    .verdict-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+    .verdict-label { font-family: var(--mono); font-size: 48px; font-weight: 900; }
+    .verdict-c1 { color: var(--green); }
+    .verdict-c2 { color: var(--orange); }
+    .verdict-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .verdict-desc { font-size: 14px; color: var(--text2); line-height: 1.7; }
+
+    /* PROCESS STEPS */
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 56px; }
+    .step { padding: 32px 28px; border-right: 1px solid var(--border); }
+    .step:last-child { border-right: none; }
+    .step-num { font-family: var(--mono); font-size: 36px; font-weight: 900; color: var(--orange); opacity: 0.4; margin-bottom: 16px; }
+    .step-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .step-desc { font-size: 14px; color: var(--text2); line-height: 1.6; }
+
+    /* CTA */
+    .cta-section { background: linear-gradient(135deg, rgba(200,78,0,0.15) 0%, rgba(200,78,0,0.05) 100%); border: 1px solid rgba(200,78,0,0.3); border-radius: 12px; padding: 64px 48px; text-align: center; }
+    .cta-section h2 { font-size: 36px; font-weight: 700; margin-bottom: 16px; }
+    .cta-section p { font-size: 18px; color: var(--text2); margin-bottom: 36px; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+    /* FOOTER */
+    footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 40px; }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+    .footer-brand { font-size: 15px; font-weight: 600; }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 13px; color: var(--text2); }
+    .footer-links a:hover { color: var(--text); text-decoration: none; }
+    .footer-legal { font-size: 12px; color: var(--text2); max-width: 1100px; margin: 24px auto 0; border-top: 1px solid var(--border); padding-top: 24px; line-height: 1.6; }
+    .sha-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(63,185,80,0.1); border: 1px solid rgba(63,185,80,0.3); color: var(--green); font-size: 12px; font-family: var(--mono); padding: 4px 10px; border-radius: 4px; margin-top: 8px; }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 32px; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .providers-grid { grid-template-columns: 1fr; }
+      .compliance-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .step { border-right: none; border-bottom: 1px solid var(--border); }
+      .verdict-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- NAV -->
+<div class="topbar">EU AI Act high-risk AI compliance deadline: August 2, 2026 &nbsp;·&nbsp; RTK-1 generates Article 15 evidence automatically</div>
+
 <nav>
-  <a href="#" class="nav-logo">
-    <span class="nav-logo-dot"></span>
-    RTK Security Labs
-  </a>
-  <ul class="nav-links">
-    <li><a href="#how">Methodology</a></li>
-    <li><a href="#providers">Providers</a></li>
-    <li><a href="#compliance">Compliance</a></li>
-    <li><a href="#pricing">Pricing</a></li>
-    <li><a href="https://jlbird.github.io/ramon-loya-RTK-1/sample-report.pdf" target="_blank" style="font-family:'DM Mono',monospace;font-size:0.75rem;letter-spacing:0.06em;color:#E83A2F;text-decoration:none;padding:6px 12px;">Sample Report</a><a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="nav-cta">Get a Report</a></li>
-  </ul>
-  <div class="nav-hamburger" onclick="toggleMenu()">
-    <span></span><span></span><span></span>
+  <div class="nav-logo">RTK<span>-1</span></div>
+  <div class="nav-links">
+    <a href="#providers">Attack Providers</a>
+    <a href="#compliance">Compliance</a>
+    <a href="#pricing">Pricing</a>
+    <a href="sample-report.html">Sample Report</a>
   </div>
+  <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_placeholder/viewform" class="nav-cta btn-primary">Request Demo</a>
 </nav>
 
-<div class="mobile-menu" id="mobileMenu">
-  <a href="#how" onclick="toggleMenu()">Methodology</a>
-  <a href="#providers" onclick="toggleMenu()">Providers</a>
-  <a href="#compliance" onclick="toggleMenu()">Compliance</a>
-  <a href="#pricing" onclick="toggleMenu()">Pricing</a>
-  <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" onclick="toggleMenu()">Get a Report</a>
-</div>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-badge">LIVE - AUTONOMOUS AI RED TEAMING</div>
-  <h1>Your AI model.<br><em>Under attack.</em><br>24 hours a day.</h1>
-  <p class="hero-sub">RTK-1 is the only autonomous AI red teaming platform with built-in EU AI Act compliance, NDAA 1512 federal reporting, and continuous LLM adversarial testing - all without human intervention.</p>
+<div class="hero">
+  <div class="hero-badge">OWASP Member in Good Standing &nbsp;·&nbsp; 28/28 Tests Passing &nbsp;·&nbsp; v0.5.0</div>
+  <h1>Autonomous AI<br><em>Red Teaming</em><br>for the Compliance Era</h1>
+  <p class="hero-sub">RTK-1 runs 24/7 adversarial campaigns against your AI systems — generating EU AI Act, NIST AI RMF, and OWASP LLM Top 10 compliance evidence automatically. SHA-256 signed. Regulator-ready. In days, not months.</p>
   <div class="hero-actions">
-    <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="btn-primary">Request a Report ></a>
-    <a href="https://github.com/JLBird/ramon-loya-RTK-1" target="_blank" class="btn-secondary">View on GitHub</a>
-    <a href="https://jlbird.github.io/ramon-loya-RTK-1/sample-report.pdf" target="_blank" class="btn-report">View Sample Report</a>
-  </div>
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="hero-stat-num">13</div>
-      <div class="hero-stat-label">Attack Providers</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-num">95</div>
-      <div class="hero-stat-label">Objectives Complete</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-num">24/7</div>
-      <div class="hero-stat-label">Autonomous Campaigns</div>
-    </div>
-    <div class="hero-stat">
-      <div class="hero-stat-num">15x</div>
-      <div class="hero-stat-label">Team Equivalent</div>
-    </div>
-  </div>
-</section>
-
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker">
-    <span class="ticker-item">AI RED TEAMING</span>
-    <span class="ticker-item">LLM SECURITY TESTING</span>
-    <span class="ticker-item">EU AI ACT COMPLIANCE</span>
-    <span class="ticker-item">AUTONOMOUS RED TEAMING</span>
-    <span class="ticker-item">PROMPT INJECTION TESTING</span>
-    <span class="ticker-item">NIST AI RMF COMPLIANCE</span>
-    <span class="ticker-item">OWASP LLM TOP 10</span>
-    <span class="ticker-item">NDAA SECTION 1512</span>
-    <span class="ticker-item">CONTINUOUS LLM ADVERSARIAL TESTING</span>
-    <span class="ticker-item">AI SAFETY VALIDATION</span>
-    <span class="ticker-item">AI RED TEAMING</span>
-    <span class="ticker-item">LLM SECURITY TESTING</span>
-    <span class="ticker-item">EU AI ACT COMPLIANCE</span>
-    <span class="ticker-item">AUTONOMOUS RED TEAMING</span>
-    <span class="ticker-item">PROMPT INJECTION TESTING</span>
-    <span class="ticker-item">NIST AI RMF COMPLIANCE</span>
-    <span class="ticker-item">OWASP LLM TOP 10</span>
-    <span class="ticker-item">NDAA SECTION 1512</span>
-    <span class="ticker-item">CONTINUOUS LLM ADVERSARIAL TESTING</span>
-    <span class="ticker-item">AI SAFETY VALIDATION</span>
+    <a href="sample-report.html" class="btn-primary">View Sample Report</a>
+    <a href="#pricing" class="btn-secondary">See Pricing</a>
   </div>
 </div>
 
-<!-- HOW IT WORKS -->
-<section id="how">
-  <div class="section-label">Methodology</div>
-  <h2 class="section-title">How RTK-1 works</h2>
-  <p class="section-sub">Autonomous AI red teaming that runs continuously - no humans required until the report lands in your inbox.</p>
-  <div class="how-grid fade-up">
-    <div class="how-card">
-      <div class="how-num">01</div>
-      <h3>Recon + Planning</h3>
-      <p>Claude Sonnet 4.6 fingerprints your target model, maps the attack surface, and selects the highest-probability exploit vectors before committing any resources.</p>
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">13</div>
+      <div class="stat-label">Attack Providers</div>
     </div>
-    <div class="how-card">
-      <div class="how-num">02</div>
-      <h3>Autonomous Execution</h3>
-      <p>RTK-1 runs Crescendo multi-turn escalations, tool abuse sequences, RAG injection, and agentic chain exploits across 13 providers - in parallel, continuously.</p>
+    <div class="stat-item">
+      <div class="stat-num">24/7</div>
+      <div class="stat-label">Autonomous Operation</div>
     </div>
-    <div class="how-card">
-      <div class="how-num">03</div>
-      <h3>LangGraph Supervision</h3>
-      <p>A ReAct supervisor loop evaluates results after each batch, adapts attack strategy, and flags sequences that require human review via Slack.</p>
+    <div class="stat-item">
+      <div class="stat-num">6+</div>
+      <div class="stat-label">Compliance Frameworks</div>
     </div>
-    <div class="how-card">
-      <div class="how-num">04</div>
-      <h3>Compliance Report</h3>
-      <p>Every campaign generates a SHA-256 signed PDF mapped to EU AI Act, NIST AI RMF, OWASP LLM Top 10, MITRE ATLAS, and NDAA Section 1512. Ready for regulators.</p>
+    <div class="stat-item">
+      <div class="stat-num">15×</div>
+      <div class="stat-label">Replaces Red Team Headcount</div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTACK PROVIDERS -->
+<section id="providers" style="background: var(--bg);">
+  <div class="section-inner">
+    <div class="section-label">Attack Providers</div>
+    <h2 class="section-title">13 Adversarial Vectors. One Platform.</h2>
+    <p class="section-sub">RTK-1 orchestrates parallel multi-vector campaigns that mirror how real adversaries operate against production AI systems. Each provider returns structured JSON scoring for pipeline integration.</p>
+    <div class="providers-grid">
+      <div class="provider-card">
+        <div class="provider-tag">PyRIT / crescendo</div>
+        <div class="provider-name">Crescendo Multi-Turn Escalation</div>
+        <div class="provider-desc">Gradually erodes authorization gates through semantic drift across extended conversations. Primary vector for A2SPA-style protocol validation.</div>
+        <div class="provider-owasp">MITRE ATLAS AML.T0054 · OWASP LLM01</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/tool_abuse</div>
+        <div class="provider-name">Tool Abuse / Unauthorized Execution</div>
+        <div class="provider-desc">Adversarial tool call sequences designed to trigger execution paths without valid authorization tokens. Tests whether AI agents enforce tool-use boundaries under attack.</div>
+        <div class="provider-owasp">OWASP LLM08 · Excessive Agency</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/agentic_chain</div>
+        <div class="provider-name">Agentic Chain Exploitation</div>
+        <div class="provider-desc">Multi-agent orchestration attacks. Tests whether compromised downstream agents can inherit authorization from upstream legitimate agents without proof.</div>
+        <div class="provider-owasp">OWASP LLM08 · MITRE ATLAS AML.T0051</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/rag_injection</div>
+        <div class="provider-name">RAG Injection</div>
+        <div class="provider-desc">Retrieval-Augmented Generation poisoning. Injects adversarial content into knowledge bases to manipulate AI system responses and bypass safety constraints.</div>
+        <div class="provider-owasp">OWASP LLM02 · Indirect Prompt Injection</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/multi_vector</div>
+        <div class="provider-name">Multi-Vector Parallel Attack</div>
+        <div class="provider-desc">Parallel execution of PyRIT, RAG injection, and tool abuse simultaneously. Produces unified ASR with per-vector breakdown for comprehensive coverage.</div>
+        <div class="provider-owasp">Full OWASP LLM Top 10 coverage</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/deepteam</div>
+        <div class="provider-name">DeepTeam LLM-as-Attacker</div>
+        <div class="provider-desc">Uses secondary language models to generate novel adversarial prompts dynamically calibrated to target model responses. Adaptive attack surface expansion.</div>
+        <div class="provider-owasp">OWASP LLM01 · Dynamic Prompt Injection</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/garak</div>
+        <div class="provider-name">Garak Probe Suite</div>
+        <div class="provider-desc">100+ probe-based failure modes covering hallucination, toxicity, jailbreak, and data extraction categories. Garak 0.14.1 with automated regression detection.</div>
+        <div class="provider-owasp">OWASP LLM06 · Sensitive Information Disclosure</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/promptfoo</div>
+        <div class="provider-name">PromptFoo CI/CD Gate</div>
+        <div class="provider-desc">Configuration-driven adversarial test suites. Reproducible attack scenarios with deterministic scoring. Binary pass/fail in sub-minute execution for CI/CD integration.</div>
+        <div class="provider-owasp">CI/CD adversarial regression gate</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/neutrality</div>
+        <div class="provider-name">Neutrality Check</div>
+        <div class="provider-desc">GSA federal procurement neutrality validation. Tests for political bias, sycophancy, and factual accuracy under adversarial pressure. Returns Neutrality Score 0–100.</div>
+        <div class="provider-owasp">GSA Federal Procurement Standard</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/digital_twin</div>
+        <div class="provider-name">Digital Twin / SCADA</div>
+        <div class="provider-desc">Operational technology AI validation. Tests AI systems controlling industrial infrastructure against adversarial inputs. NDAA Section 1535 critical infrastructure.</div>
+        <div class="provider-owasp">NDAA 1535 · Critical Infrastructure AI</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/glasswing</div>
+        <div class="provider-name">Glasswing Behavioral Fingerprint</div>
+        <div class="provider-desc">Behavioral fingerprint regression detection. Identifies semantic drift and behavioral changes between model versions over time. Week-over-week ASR baseline.</div>
+        <div class="provider-owasp">MITRE ATLAS AML.T0043 · Model Inversion</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/crewai</div>
+        <div class="provider-name">CrewAI Multi-Agent Crews</div>
+        <div class="provider-desc">Specialized agents collaborate on coordinated adversarial campaigns against agentic target systems. Tests multi-agent orchestration attack surfaces.</div>
+        <div class="provider-owasp">Agentic AI · LLM08 Multi-Agent</div>
+      </div>
+      <div class="provider-card">
+        <div class="provider-tag">/byom</div>
+        <div class="provider-name">Bring Your Own Model</div>
+        <div class="provider-desc">Client-supplied attack models integrated into the RTK-1 orchestration framework for custom adversarial scenarios tailored to your specific deployment.</div>
+        <div class="provider-owasp">Custom attack surface coverage</div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- PROVIDERS -->
-<section id="providers" class="providers-section">
-  <div class="section-label">Attack Surface</div>
-  <h2 class="section-title">13 attack providers.<br>Every vector covered.</h2>
-  <p class="section-sub">From multi-turn prompt injection to SCADA system manipulation - RTK-1 covers the complete OWASP LLM Top 10 attack surface and beyond.</p>
-  <div class="providers-grid fade-up">
-    <div class="provider-card">
-      <div class="provider-tag">LLM01</div>
-      <h3>Crescendo - PyRIT 0.12.0</h3>
-      <p>Multi-turn escalation campaigns that build adversarial pressure over 8+ turns. The most effective LLM security testing vector for production models.</p>
-    </div>
-    <div class="provider-card">
-      <div class="provider-tag">LLM01 . LLM06</div>
-      <h3>Garak 0.14.1</h3>
-      <p>100+ failure modes across 20+ model APIs. Systematic prompt injection testing with automated scoring and regression detection.</p>
-    </div>
-    <div class="provider-card">
-      <div class="provider-tag">LLM02</div>
-      <h3>RAG Injection</h3>
-      <p>Indirect prompt injection via poisoned retrieval documents. Tests whether your RAG pipeline can be used to hijack model behavior at scale.</p>
-    </div>
-    <div class="provider-card">
-      <div class="provider-tag">LLM08</div>
-      <h3>Tool Abuse + Agentic Chain</h3>
-      <p>Unauthorized tool call manipulation and inter-agent injection. Critical for agentic AI deployments where excessive agency creates real-world risk.</p>
-    </div>
-    <div class="provider-card">
-      <div class="provider-tag">GSA Federal</div>
-      <h3>Neutrality Check</h3>
-      <p>Political bias, sycophancy detection, and factual accuracy under adversarial pressure. Scores 0â€“100 against GSA federal procurement neutrality standard.</p>
-    </div>
-    <div class="provider-card">
-      <div class="provider-tag">NDAA 1535</div>
-      <h3>Digital Twin - SCADA</h3>
-      <p>Red teams AI controlling physical infrastructure: SCADA systems, industrial IoT, autonomous vehicles, and drone flight controllers.</p>
+<!-- C1/C2 VERDICT -->
+<section style="background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="section-label">Binary Verdict Framework</div>
+    <h2 class="section-title">C1/C2 Execution Gate Validation</h2>
+    <p class="section-sub">No other platform uses this framing. CISOs, compliance officers, and regulators understand it immediately. No risk percentage — a binary answer you can sign off on.</p>
+    <div class="verdict-section">
+      <div class="verdict-grid">
+        <div>
+          <div class="verdict-label verdict-c1">C1</div>
+          <div class="verdict-title">Execution Detected</div>
+          <div class="verdict-desc">The unauthorized execution path exists and was triggered under adversarial pressure. The AI system's authorization boundary failed under the attack scenario tested. Immediate remediation required. Full attack trace logged with MITRE ATLAS technique attribution.</div>
+        </div>
+        <div>
+          <div class="verdict-label verdict-c2">C2</div>
+          <div class="verdict-title">No Execution Path Found</div>
+          <div class="verdict-desc">No unauthorized execution path exists — even under sustained adversarial pressure across all attack vectors. C2 is the stronger claim: if C2 holds, C1 is guaranteed. This is the evidence procurement committees and regulators need to approve deployment.</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- COMPLIANCE -->
-<section id="compliance">
-  <div class="section-label">Regulatory Coverage</div>
-  <h2 class="section-title">Every framework.<br>One platform.</h2>
-  <p class="section-sub">RTK-1 is the only automated AI red teaming platform that maps findings to every major compliance framework out of the box.</p>
-  <div class="compliance-grid fade-up">
-    <div class="compliance-card">
-      <div class="compliance-icon">EU AI ACT</div>
-      <h3>EU AI Act</h3>
-      <ul class="compliance-items">
-        <li>Article 9 - Risk management</li>
-        <li>Article 14 - Human oversight</li>
-        <li>Article 15 - Robustness</li>
-        <li>Annex IV - Documentation</li>
-        <li>Article 72 - Post-market monitoring</li>
-      </ul>
-    </div>
-    <div class="compliance-card">
-      <div class="compliance-icon">NIST AI RMF</div>
-      <h3>NIST AI RMF</h3>
-      <ul class="compliance-items">
-        <li>GOVERN 1.2 - Scope</li>
-        <li>MEASURE 2.4 - Safety risk</li>
-        <li>MEASURE 2.7 - Adversarial T&E</li>
-        <li>MANAGE 4.1 - Residual risk</li>
-      </ul>
-    </div>
-    <div class="compliance-card">
-      <div class="compliance-icon">OWASP LLM</div>
-      <h3>OWASP LLM Top 10</h3>
-      <ul class="compliance-items">
-        <li>LLM01 - Prompt Injection</li>
-        <li>LLM02 - Insecure Output</li>
-        <li>LLM06 - Sensitive Disclosure</li>
-        <li>LLM08 - Excessive Agency</li>
-      </ul>
-    </div>
-    <div class="compliance-card">
-      <div class="compliance-icon">MITRE ATLAS</div>
-      <h3>MITRE ATLAS</h3>
-      <ul class="compliance-items">
-        <li>AML.T0054 - Multi-turn attacks</li>
-        <li>AML.T0051 - Jailbreak</li>
-        <li>AML.T0043 - Adversarial data</li>
-      </ul>
-    </div>
-    <div class="compliance-card">
-      <div class="compliance-icon">FEDERAL</div>
-      <h3>NDAA 1512 + 1535</h3>
-      <ul class="compliance-items">
-        <li>Adversarial testing evidence</li>
-        <li>VDP disclosure package</li>
-        <li>DHS AI-ISAC XML/JSON</li>
-        <li>SHA-256 signed reports</li>
-        <li>Critical infrastructure testing</li>
-      </ul>
-    </div>
-    <div class="compliance-card">
-      <div class="compliance-icon">GSA FEDERAL</div>
-      <h3>GSA Procurement</h3>
-      <ul class="compliance-items">
-        <li>Neutrality Score 0â€“100</li>
-        <li>Sycophancy detection</li>
-        <li>Factual accuracy under pressure</li>
-        <li>Objective truth standard</li>
-      </ul>
+<section id="compliance" style="background: var(--bg);">
+  <div class="section-inner">
+    <div class="section-label">Regulatory Coverage</div>
+    <h2 class="section-title">Every Report. Every Framework. Automatically.</h2>
+    <p class="section-sub">RTK-1 generates compliance evidence for six regulatory frameworks simultaneously. SHA-256 signed. Tamper-proof. Submission-ready.</p>
+    <div class="compliance-grid">
+      <div class="compliance-card">
+        <span class="compliance-tag tag-eu">EU AI Act</span>
+        <h3>Articles 9, 14, 15 &amp; Annex IV</h3>
+        <p>RTK-1 generates adversarial robustness evidence that satisfies Article 15 technical documentation requirements for high-risk AI systems. Enforcement begins August 2, 2026. First-mover advantage — most enterprises are still building compliance programs.</p>
+      </div>
+      <div class="compliance-card">
+        <span class="compliance-tag tag-nist">NIST AI RMF</span>
+        <h3>GOVERN · MAP · MEASURE · MANAGE</h3>
+        <p>Campaign results map directly to NIST AI Risk Management Framework functions. MEASURE 2.4 and 2.7 adversarial testing documentation auto-generated in every report. Automated compliance mapping with no manual effort.</p>
+      </div>
+      <div class="compliance-card">
+        <span class="compliance-tag tag-owasp">OWASP LLM Top 10</span>
+        <h3>Full Coverage — LLM01 Through LLM10</h3>
+        <p>All 13 attack providers are mapped to OWASP LLM Top 10 vulnerability categories. Every report includes an OWASP coverage matrix. LLM01 prompt injection, LLM02 indirect injection, LLM06 sensitive information disclosure, LLM08 excessive agency — all covered.</p>
+      </div>
+      <div class="compliance-card">
+        <span class="compliance-tag tag-mitre">MITRE ATLAS</span>
+        <h3>AML.T0054 · AML.T0051 · AML.T0043</h3>
+        <p>Every finding is attributed to the MITRE Adversarial Threat Landscape for AI Systems technique library. Machine learning attack techniques documented with formal attribution that security teams and government agencies recognize immediately.</p>
+      </div>
+      <div class="compliance-card">
+        <span class="compliance-tag tag-mitre">NDAA Section 1512</span>
+        <h3>DHS AI-ISAC Disclosure Package</h3>
+        <p>VDP disclosure packages formatted for DHS AI-ISAC submission in JSON v1.0 and XML v1.1 schema formats, fully compliant with NDAA Section 1512 federal AI accountability requirements. Federal-grade documentation for federal AI deployments.</p>
+      </div>
+      <div class="compliance-card">
+        <span class="compliance-tag tag-nist">FCA · GSA</span>
+        <h3>Financial Conduct Authority + Federal Procurement</h3>
+        <p>Cryptographic SHA-256 report signing with HMAC provides tamper detection and audit trail for Financial Conduct Authority AI governance. GSA Neutrality Check endpoint validates AI systems against federal procurement political bias and sycophancy standards.</p>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- PROOF -->
-<section class="providers-section">
-  <div class="section-label">By the numbers</div>
-  <h2 class="section-title">Built to replace<br>a team of 15.</h2>
-  <p class="section-sub">Enterprise clients save $2.8M+ per year versus building an internal AI red team.</p>
-  <div class="proof-grid fade-up">
-    <div class="proof-card">
-      <div class="proof-card-label">COST SAVINGS</div>
-      <div class="proof-metric">$2.8M+</div>
-      <p class="proof-desc">Annual savings vs. building a 15-person internal AI red team. RTK-1 runs 24/7 for a fraction of the cost.</p>
-    </div>
-    <div class="proof-card">
-      <div class="proof-card-label">ATTACK COVERAGE</div>
-      <div class="proof-metric">174</div>
-      <p class="proof-desc">Automated checks across OWASP LLM Top 10, MITRE ATLAS, and custom adversarial scenarios per campaign.</p>
-    </div>
-    <div class="proof-card">
-      <div class="proof-card-label">REPORT DELIVERY</div>
-      <div class="proof-metric">&lt;12min</div>
-      <p class="proof-desc">From campaign launch to compliance-mapped PDF report. No waiting for a consultant to write it up.</p>
-    </div>
-    <div class="proof-card">
-      <div class="proof-card-label">FRAMEWORK COVERAGE</div>
-      <div class="proof-metric">6</div>
-      <p class="proof-desc">EU AI Act, NIST AI RMF, OWASP LLM Top 10, MITRE ATLAS, NDAA 1512 + 1535 - every report, automatically.</p>
+<!-- HOW IT WORKS -->
+<section style="background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="section-label">Engagement Process</div>
+    <h2 class="section-title">From Scope to Signed Report in Days</h2>
+    <p class="section-sub">RTK-1 replaces a 15-person specialized red team. You don't run it — we run it for you.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">Define Scope</div>
+        <div class="step-desc">We scope the engagement to your AI deployment — target model, attack surface, compliance frameworks required, and threat scenarios most relevant to your environment.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">Run Campaigns</div>
+        <div class="step-desc">RTK-1 executes autonomous adversarial campaigns 24/7 across selected attack providers. No human intervention required during execution. Full logging at every step.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">C1/C2 Verdict</div>
+        <div class="step-desc">Every campaign produces a binary verdict: C1 (execution detected) or C2 (no execution path found). MITRE ATLAS attribution on every finding. ASR trending dashboard live.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Signed Report</div>
+        <div class="step-desc">SHA-256 signed PDF report delivered with full compliance matrix, executive summary, per-finding remediation roadmap, and regulatory submission package. Tamper-proof.</div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- PRICING -->
-<section id="pricing" class="pricing-section">
-  <div class="section-label">Pricing</div>
-  <h2 class="section-title">Start with a<br>single assessment.</h2>
-  <p class="section-sub">First engagement is a flat-fee validation report. Retainers available after you see your first results.</p>
-  <div style="background:rgba(232,58,47,0.08);border:1px solid rgba(232,58,47,0.3);border-radius:10px;padding:24px 32px;margin-bottom:40px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;">
-    <div>
-      <div style="font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:#E83A2F;margin-bottom:6px;">PROOF OF WORK</div>
-      <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;color:#F2F4F8;letter-spacing:-0.02em;">See a real RTK-1 campaign report before you commit.</div>
-      <div style="font-size:0.85rem;color:#7A8494;margin-top:4px;font-weight:300;">Live output. Real findings. Compliance-mapped. SHA-256 signed.</div>
+<section id="pricing" style="background: var(--bg);">
+  <div class="section-inner">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Non-Negotiable. Never Discounted.</h2>
+    <p class="section-sub">RTK-1 replaces 15 specialized red team professionals and saves clients $2M–$3M per year versus building internal capability. Discounting signals the wrong value to the wrong client.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">Starter</div>
+        <div class="pricing-price">$25,000 <span>flat fee</span></div>
+        <div class="pricing-desc">Point-in-time adversarial validation with compliance-mapped report.</div>
+        <ul class="pricing-features">
+          <li>One complete red team campaign</li>
+          <li>Up to 3 attack scenarios</li>
+          <li>Compliance-mapped PDF report</li>
+          <li>Binary C1/C2 verdict</li>
+          <li>Executive summary</li>
+          <li>One revision round included</li>
+          <li>SHA-256 signed delivery</li>
+        </ul>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-tier">Professional</div>
+        <div class="pricing-price">$41,667 <span>/mo · $500K/yr</span></div>
+        <div class="pricing-desc">Continuous monitoring with all 13 attack providers and weekly reporting.</div>
+        <ul class="pricing-features">
+          <li>Unlimited monthly campaigns</li>
+          <li>All 13 attack providers</li>
+          <li>Weekly and monthly reports</li>
+          <li>Grafana ASR trend dashboard</li>
+          <li>CI/CD gate integration</li>
+          <li>Campaign history archive</li>
+          <li>Priority campaign execution</li>
+        </ul>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Enterprise</div>
+        <div class="pricing-price">$83,333 <span>/mo · $1M/yr</span></div>
+        <div class="pricing-desc">Full platform access with VDP packages and multi-model comparison.</div>
+        <ul class="pricing-features">
+          <li>Everything in Professional</li>
+          <li>Multi-model parallel comparison</li>
+          <li>VDP / DHS AI-ISAC packages</li>
+          <li>Cryptographic report signing</li>
+          <li>Remediation impact analysis</li>
+          <li>Dual-model validation</li>
+          <li>FCA-compliant signed reports</li>
+        </ul>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-tier">Federal</div>
+        <div class="pricing-price">$250,000 <span>/mo · $3M/yr</span></div>
+        <div class="pricing-desc">Federal-grade managed service with NDAA compliance and SCADA testing.</div>
+        <ul class="pricing-features">
+          <li>Everything in Enterprise</li>
+          <li>NDAA Section 1512 compliance</li>
+          <li>GSA neutrality validation</li>
+          <li>Digital twin / SCADA testing</li>
+          <li>BYOM custom attack integration</li>
+          <li>Dedicated federal account management</li>
+          <li>mTLS private deployment</li>
+        </ul>
+      </div>
     </div>
-    <a href="https://jlbird.github.io/ramon-loya-RTK-1/sample-report.pdf" target="_blank" class="btn-report" style="white-space:nowrap;flex-shrink:0;">Download Sample Report</a>
-  </div>
-  <div class="pricing-grid fade-up">
-
-    <div class="pricing-card">
-      <div class="pricing-tier-label">Starter</div>
-      <div class="pricing-price">$25,000</div>
-      <div class="pricing-desc">Flat fee . one-time assessment</div>
-      <ul class="pricing-features">
-        <li>One Crescendo campaign</li>
-        <li>Full compliance PDF report</li>
-        <li>EU AI Act Article 15 evidence</li>
-        <li>NIST MEASURE 2.7 documentation</li>
-        <li>30-min Zoom debrief</li>
-        <li>48hr turnaround</li>
-      </ul>
-      <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="pricing-btn">Get Started</a>
-    </div>
-
-    <div class="pricing-card featured">
-      <div class="pricing-featured-badge">MOST POPULAR</div>
-      <div class="pricing-tier-label">Professional</div>
-      <div class="pricing-price">$41,667<span>/mo</span></div>
-      <div class="pricing-desc">Monthly retainer . $500K/yr</div>
-      <ul class="pricing-features">
-        <li>Monthly campaign + report</li>
-        <li>All compliance frameworks</li>
-        <li>Week-over-week ASR trends</li>
-        <li>Grafana dashboard access</li>
-        <li>Slack alerts on ASR spikes</li>
-        <li>Continuous 24/7 monitoring</li>
-        <li>Priority support</li>
-      </ul>
-      <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="pricing-btn">Start Retainer</a>
-    </div>
-
-    <div class="pricing-card">
-      <div class="pricing-tier-label">Enterprise</div>
-      <div class="pricing-price">$83,333<span>/mo</span></div>
-      <div class="pricing-desc">Monthly retainer . $1M/yr</div>
-      <ul class="pricing-features">
-        <li>Unlimited campaigns</li>
-        <li>All 13 providers active</li>
-        <li>Multi-model comparison</li>
-        <li>Federated multi-node</li>
-        <li>CI/CD gate integration</li>
-        <li>Custom scorer development</li>
-        <li>Dedicated support</li>
-      </ul>
-      <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="pricing-btn">Contact Us</a>
-    </div>
-
-    <div class="pricing-card">
-      <div class="pricing-tier-label">Federal</div>
-      <div class="pricing-price">$250,000<span>/mo</span></div>
-      <div class="pricing-desc">Monthly retainer . $3M/yr</div>
-      <ul class="pricing-features">
-        <li>NDAA Section 1512 package</li>
-        <li>DHS AI-ISAC VDP disclosure</li>
-        <li>mTLS private deployment</li>
-        <li>Neutrality check module</li>
-        <li>SHA-256 signed reports</li>
-        <li>FCA liability protection</li>
-        <li>On-site deployment option</li>
-      </ul>
-      <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="pricing-btn">Contact Us</a>
-    </div>
-
+    <p class="pricing-note">Payment: 50% deposit / 50% on delivery via Stripe. Annual retainers billed monthly. Minimum engagement: $25,000. Wire transfer accepted. All prices USD.<br>Proprietary methodology protected under 18 U.S.C. § 1836 (DTSA) and Tex. Civ. Prac. &amp; Rem. Code § 134A.</p>
   </div>
 </section>
 
 <!-- CTA -->
-<section class="cta-section">
-  <div class="cta-glow"></div>
-  <div class="section-label">Get Started</div>
-  <h2 class="section-title">Your AI model has<br>never been attacked.<br><em>It will be.</em></h2>
-  <p class="section-sub">Find the vulnerabilities before your adversaries do. RTK-1 runs the first campaign in 48 hours.</p>
-  <div style="margin-bottom:20px;">
-    <a href="https://jlbird.github.io/ramon-loya-RTK-1/sample-report.pdf" target="_blank" class="btn-report">See a real campaign report first</a>
-  </div>
-  <div class="cta-actions">
-    <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank" class="btn-primary">Request a Report ></a>
-    <a href="https://github.com/JLBird/ramon-loya-RTK-1" target="_blank" class="btn-secondary">View GitHub ></a>
+<section style="background: var(--bg2); border-top: 1px solid var(--border);">
+  <div class="section-inner">
+    <div class="cta-section">
+      <h2>Ready to see RTK-1 in action?</h2>
+      <p>View the sample report, then contact us to scope your engagement. EU AI Act Article 15 enforcement begins August 2, 2026.</p>
+      <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+        <a href="sample-report.html" class="btn-primary">View Sample Report</a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_placeholder/viewform" class="btn-secondary" style="border-color: rgba(200,78,0,0.5); color: var(--text);">Contact Us</a>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
-  <div class="footer-top">
+  <div class="footer-inner">
     <div>
-      <div class="footer-brand">RTK Security <span>Labs</span></div>
-      <p class="footer-tagline">Autonomous AI red teaming platform. LLM security testing, EU AI Act compliance, and continuous adversarial testing - built for enterprise and federal deployments.</p>
+      <div class="footer-brand">RTK Security Labs</div>
+      <div style="font-size:13px; color:var(--text2); margin-top:4px;">Guadalupe County, TX &nbsp;·&nbsp; ramon@rtksecuritylabs.com</div>
+      <div class="sha-badge">SHA-256 HMAC · Tamper-proof reports</div>
     </div>
     <div class="footer-links">
-      <a href="https://github.com/JLBird/ramon-loya-RTK-1" target="_blank">GitHub Repository</a>
-      <a href="https://forms.gle/JBKYsLRmxictTA837" target="_blank">Contact Us</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#compliance">Compliance</a>
+      <a href="sample-report.html">Sample Report</a>
+      <a href="https://github.com/JLBird/ramon-loya-RTK-1">GitHub</a>
+      <a href="https://linkedin.com/in/ramon-loya1">LinkedIn</a>
+      <a href="https://x.com/RTKSec">@RTKSec</a>
     </div>
   </div>
-  <div class="footer-bottom">
-    <div class="footer-copy">Â© 2026 RTK Security Labs . Ramon Loya . Seguin, TX . Authorized testing only</div>
-    <div class="footer-badges">
-      <span class="badge">EU AI ACT</span>
-      <span class="badge">NIST AI RMF</span>
-      <span class="badge">OWASP LLM TOP 10</span>
-      <span class="badge">NDAA 1512</span>
-      <span class="badge">MITRE ATLAS</span>
-    </div>
+  <div class="footer-legal">
+    RTK-1 methodology, attack provider architecture, C1/C2 execution gate framework, and report format are proprietary trade secrets of RTK Security Labs protected under 18 U.S.C. § 1836 (Defend Trade Secrets Act) and Tex. Civ. Prac. &amp; Rem. Code § 134A (Texas Uniform Trade Secrets Act). Unauthorized reproduction or commercial use is prohibited. &nbsp;·&nbsp; OWASP® is a registered trademark of the OWASP Foundation. MITRE ATLAS™ is a trademark of The MITRE Corporation. &nbsp;·&nbsp; © 2026 RTK Security Labs. All rights reserved.
   </div>
 </footer>
 
-<script>
-// Mobile menu
-function toggleMenu() {
-  document.getElementById('mobileMenu').classList.toggle('open');
-}
-
-// Close menu on outside click
-document.addEventListener('click', function(e) {
-  const menu = document.getElementById('mobileMenu');
-  const hamburger = document.querySelector('.nav-hamburger');
-  if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
-    menu.classList.remove('open');
-  }
-});
-
-// Smooth nav links
-document.querySelectorAll('a
+</body>
+</html>
