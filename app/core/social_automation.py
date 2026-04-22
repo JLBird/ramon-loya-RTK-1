@@ -5,6 +5,15 @@ Triggered by campaign completions via delivery bundle.
 """
 
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+# ── Load .env FIRST — before any settings or API clients initialize ──────────
+_ENV_PATH = Path(__file__).resolve().parents[2] / ".env"
+load_dotenv(_ENV_PATH, override=True)
+# ─────────────────────────────────────────────────────────────────────────────
+
 from typing import Any, Dict
 
 from langchain_anthropic import ChatAnthropic
@@ -243,32 +252,6 @@ class LinkedInPoster:
         sub = resp.json().get("sub")
         if not sub:
             raise RuntimeError("Could not retrieve LinkedIn member URN from userinfo")
-        return f"urn:li:person:{sub}"
-
-        # Try /v2/me first (works with w_member_social scope)
-        try:
-            resp = httpx.get(
-                "https://api.linkedin.com/v2/me",
-                headers=headers,
-                timeout=15,
-            )
-            resp.raise_for_status()
-            member_id = resp.json().get("id")
-            if member_id:
-                return f"urn:li:person:{member_id}"
-        except Exception:
-            pass
-
-        # Fallback to userinfo (requires openid scope)
-        resp = httpx.get(
-            "https://api.linkedin.com/v2/userinfo",
-            headers=headers,
-            timeout=15,
-        )
-        resp.raise_for_status()
-        sub = resp.json().get("sub")
-        if not sub:
-            raise RuntimeError("Could not retrieve LinkedIn member URN")
         return f"urn:li:person:{sub}"
 
     def post(self, text: str) -> Dict[str, Any]:
