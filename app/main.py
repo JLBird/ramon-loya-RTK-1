@@ -31,7 +31,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="RTK-1 — Claude-Orchestrated AI Red Teaming API",
     description="Production-grade adversarial red-teaming: Claude 4 + LangGraph + PyRIT",
-    version="0.3.0",
+    version="0.5.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
@@ -57,6 +57,6 @@ async def health():
         "orchestrator": "Claude Sonnet 4.6 + LangGraph",
         "facade": "RTKFacade (PyRIT 0.12.0)",
         "environment": settings.environment,
-        "version": "0.3.0",
+        "version": "0.5.0",
         "scheduler": "active" if settings.scheduled_campaign_enabled else "disabled",
     }
