@@ -58,6 +58,47 @@
     .verdict-desc { font-size: 15px; color: var(--text); max-width: 500px; line-height: 1.6; }
     .verdict-desc strong { color: var(--green); }
 
+    /* PHASE COMPARISON — Segment 5 anchor */
+    .phase-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: stretch; margin: 24px 0; }
+    .phase-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+    .phase-card.phase1 { border-color: rgba(248,81,73,0.4); }
+    .phase-card.phase2 { border-color: rgba(63,185,80,0.4); }
+    .phase-tag { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 12px; font-family: var(--mono); }
+    .phase-tag.t1 { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+    .phase-tag.t2 { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+    .phase-title { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .phase-state { font-size: 12px; color: var(--text2); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .phase-asr { font-family: var(--mono); font-size: 56px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+    .phase-asr.high { color: var(--red); }
+    .phase-asr.low { color: var(--green); }
+    .phase-asr-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; }
+    .phase-bar-wrap { background: var(--border); border-radius: 4px; height: 10px; overflow: hidden; margin-bottom: 18px; }
+    .phase-bar { height: 100%; border-radius: 4px; }
+    .phase-bar.high { background: var(--red); }
+    .phase-bar.low { background: var(--green); }
+    .phase-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; }
+    .phase-stat { background: rgba(255,255,255,0.03); border-radius: 6px; padding: 8px 10px; }
+    .phase-stat-label { color: var(--text2); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .phase-stat-val { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text); }
+    .phase-verdict { margin-top: 16px; padding: 10px 12px; border-radius: 6px; font-family: var(--mono); font-size: 13px; font-weight: 700; text-align: center; }
+    .phase-verdict.fail { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+    .phase-verdict.pass { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+
+    /* DELTA ARROW */
+    .delta-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 8px; }
+    .delta-arrow-icon { font-size: 32px; color: var(--orange); font-weight: 900; line-height: 1; }
+    .delta-value { font-family: var(--mono); font-size: 28px; font-weight: 900; color: var(--orange); margin: 8px 0 4px; line-height: 1; }
+    .delta-label { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; text-align: center; line-height: 1.3; }
+
+    /* DELTA TABLE — secondary, detailed view */
+    .delta-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 24px; }
+    .delta-table th { background: var(--bg3); border: 1px solid var(--border); padding: 10px 14px; text-align: left; font-size: 11px; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    .delta-table td { border: 1px solid var(--border); padding: 11px 14px; vertical-align: middle; }
+    .delta-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    .delta-table .col-p1 { color: var(--red); font-family: var(--mono); font-weight: 700; }
+    .delta-table .col-p2 { color: var(--green); font-family: var(--mono); font-weight: 700; }
+    .delta-table .col-delta { color: var(--orange); font-family: var(--mono); font-weight: 700; }
+
     /* ASR GAUGE */
     .asr-block { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 20px; }
     .asr-label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
@@ -79,6 +120,7 @@
     .metric-green { color: var(--green); }
     .metric-blue { color: var(--blue); }
     .metric-orange { color: var(--orange); }
+    .metric-red { color: var(--red); }
 
     /* PROVIDER RESULTS TABLE */
     .provider-table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -147,6 +189,8 @@
       .cover-grid { grid-template-columns: 1fr; }
       .metrics-grid { grid-template-columns: repeat(2, 1fr); }
       .cover h1 { font-size: 24px; }
+      .phase-grid { grid-template-columns: 1fr; }
+      .delta-arrow { transform: rotate(90deg); padding: 12px 0; }
     }
   </style>
 </head>
@@ -175,7 +219,7 @@
     <hr class="cover-divider">
     <div class="cover-title">AI Red Teaming Compliance Report</div>
     <h1>Adversarial Robustness Evaluation<br>Enterprise LLM Deployment</h1>
-    <div class="cover-subtitle">Crescendo Multi-Turn Escalation · Tool Abuse · RAG Injection · Agentic Chain Exploitation</div>
+    <div class="cover-subtitle">Phase 1 Baseline · Phase 2 Validation · Crescendo Multi-Turn · Tool Abuse · RAG Injection · Agentic Chain Exploitation</div>
     <div class="cover-grid">
       <div class="cover-field">
         <div class="cover-field-label">Target System</div>
@@ -252,10 +296,153 @@
     <p>Three minor observations (F-002, F-003, F-004) were identified and documented below. None of these represent execution gate failures — they are informational findings that warrant monitoring and proactive mitigation in the 30-90 day window.</p>
   </div>
 
+  <!-- PHASE 1 → PHASE 2 DELTA  (NEW SECTION 02) -->
+  <div class="report-section">
+    <h2><span class="section-num">02</span> Phase 1 → Phase 2 Delta</h2>
+    <p>Every RTK-1 engagement is structured as two contrasting phases against the same target system. <strong style="color:var(--text);">Phase 1</strong> measures the target undefended — baseline ASR with all enforcement layers offline. <strong style="color:var(--text);">Phase 2</strong> repeats the identical attack sequences with enforcement active. <strong style="color:var(--orange);">The delta between the two ASR numbers is the proof of value.</strong></p>
+
+    <!-- Side-by-side phase comparison -->
+    <div class="phase-grid">
+      <!-- PHASE 1 -->
+      <div class="phase-card phase1">
+        <div class="phase-tag t1">Phase 1 · Baseline</div>
+        <div class="phase-title">Target Undefended</div>
+        <div class="phase-state">Enforcement layer: <span style="color:var(--red);">OFFLINE</span></div>
+        <div class="phase-asr high">87.4%</div>
+        <div class="phase-asr-label">Attack Success Rate</div>
+        <div class="phase-bar-wrap"><div class="phase-bar high" style="width: 87.4%;"></div></div>
+        <div class="phase-stats">
+          <div class="phase-stat">
+            <div class="phase-stat-label">Sequences</div>
+            <div class="phase-stat-val">685</div>
+          </div>
+          <div class="phase-stat">
+            <div class="phase-stat-label">Successful</div>
+            <div class="phase-stat-val">599</div>
+          </div>
+          <div class="phase-stat">
+            <div class="phase-stat-label">Crescendo ASR</div>
+            <div class="phase-stat-val">91.2%</div>
+          </div>
+          <div class="phase-stat">
+            <div class="phase-stat-label">Tool Abuse ASR</div>
+            <div class="phase-stat-val">84.9%</div>
+          </div>
+        </div>
+        <div class="phase-verdict fail">C1 · EXECUTION PATHS EXIST</div>
+      </div>
+
+      <!-- DELTA INDICATOR -->
+      <div class="delta-arrow">
+        <div class="delta-arrow-icon">→</div>
+        <div class="delta-value">−84.2</div>
+        <div class="delta-label">Percentage<br>Point Delta</div>
+      </div>
+
+      <!-- PHASE 2 -->
+      <div class="phase-card phase2">
+        <div class="phase-tag t2">Phase 2 · Validation</div>
+        <div class="phase-title">Target Secured</div>
+        <div class="phase-state">Enforcement layer: <span style="color:var(--green);">ACTIVE</span></div>
+        <div class="phase-asr low">3.2%</div>
+        <div class="phase-asr-label">Attack Success Rate</div>
+        <div class="phase-bar-wrap"><div class="phase-bar low" style="width: 3.2%;"></div></div>
+        <div class="phase-stats">
+          <div class="phase-stat">
+            <div class="phase-stat-label">Sequences</div>
+            <div class="phase-stat-val">685</div>
+          </div>
+          <div class="phase-stat">
+            <div class="phase-stat-label">Successful</div>
+            <div class="phase-stat-val">22</div>
+          </div>
+          <div class="phase-stat">
+            <div class="phase-stat-label">Crescendo ASR</div>
+            <div class="phase-stat-val">2.9%</div>
+          </div>
+          <div class="phase-stat">
+            <div class="phase-stat-label">Tool Abuse ASR</div>
+            <div class="phase-stat-val">4.1%</div>
+          </div>
+        </div>
+        <div class="phase-verdict pass">C2 · NO EXECUTION PATH EXISTS</div>
+      </div>
+    </div>
+
+    <p style="margin-top: 12px;">The 84.2 percentage-point reduction across 685 identical attack sequences is not a probabilistic measurement — it is a deterministic measurement of the enforcement layer's effectiveness. The same prompts, the same providers, the same scoring rubrics, run twice. The only variable is whether enforcement is active. <strong style="color:var(--text);">The delta is your proof of value.</strong></p>
+
+    <h3 style="margin-top: 28px;">Provider-Level Delta Detail</h3>
+    <p>Each attack provider was executed in both phases. The table below documents Phase 1 (undefended) ASR, Phase 2 (secured) ASR, and the resulting delta per provider.</p>
+    <table class="delta-table">
+      <thead>
+        <tr>
+          <th>Provider</th>
+          <th>Sequences</th>
+          <th>Phase 1 ASR<br>(Undefended)</th>
+          <th>Phase 2 ASR<br>(Secured)</th>
+          <th>Delta</th>
+          <th>Verdict</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>PyRIT Crescendo</strong></td>
+          <td>340</td>
+          <td class="col-p1">91.2%</td>
+          <td class="col-p2">2.9%</td>
+          <td class="col-delta">−88.3 pp</td>
+          <td><span class="badge badge-pass">C2 PASS</span></td>
+        </tr>
+        <tr>
+          <td><strong>Tool Abuse</strong></td>
+          <td>218</td>
+          <td class="col-p1">84.9%</td>
+          <td class="col-p2">4.1%</td>
+          <td class="col-delta">−80.8 pp</td>
+          <td><span class="badge badge-pass">C2 PASS</span></td>
+        </tr>
+        <tr>
+          <td><strong>RAG Injection</strong></td>
+          <td>94</td>
+          <td class="col-p1">79.8%</td>
+          <td class="col-p2">3.2%</td>
+          <td class="col-delta">−76.6 pp</td>
+          <td><span class="badge badge-pass">C2 PASS</span></td>
+        </tr>
+        <tr>
+          <td><strong>Agentic Chain</strong></td>
+          <td>127</td>
+          <td class="col-p1">88.2%</td>
+          <td class="col-p2">5.5%</td>
+          <td class="col-delta">−82.7 pp</td>
+          <td><span class="badge badge-warn">C2 MARGINAL</span></td>
+        </tr>
+        <tr>
+          <td><strong>Garak Suite</strong></td>
+          <td>311</td>
+          <td class="col-p1">86.3%</td>
+          <td class="col-p2">1.9%</td>
+          <td class="col-delta">−84.4 pp</td>
+          <td><span class="badge badge-pass">C2 PASS</span></td>
+        </tr>
+        <tr style="background: rgba(200,78,0,0.08);">
+          <td><strong>Aggregate</strong></td>
+          <td><strong>685</strong></td>
+          <td class="col-p1"><strong>87.4%</strong></td>
+          <td class="col-p2"><strong>3.2%</strong></td>
+          <td class="col-delta"><strong>−84.2 pp</strong></td>
+          <td><span class="badge badge-pass"><strong>C2 PASS</strong></span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top: 20px; font-size:13px; color:var(--text2);">Phase 1 and Phase 2 reports are signed independently. Phase 1 SHA-256: <code style="font-family:var(--mono); color:var(--blue); font-size:12px;">f4b7e092a3c5d168...74ea91b8c3</code> · Phase 2 SHA-256: <code style="font-family:var(--mono); color:var(--blue); font-size:12px;">a3f8c2d1e947b6f2...e578d3b9</code>. Both are independently verifiable and form a paired audit-trail artifact.</p>
+  </div>
+
   <!-- ATTACK PROVIDER RESULTS -->
   <div class="report-section">
-    <h2><span class="section-num">02</span> Attack Provider Results</h2>
-    <p>RTK-1 executed five attack providers in parallel across the 72-hour campaign window. Each provider returns structured JSON scoring mapped to OWASP LLM Top 10 and MITRE ATLAS technique IDs.</p>
+    <h2><span class="section-num">03</span> Attack Provider Results</h2>
+    <p>RTK-1 executed five attack providers in parallel across the 72-hour campaign window. Each provider returns structured JSON scoring mapped to OWASP LLM Top 10 and MITRE ATLAS technique IDs. The results below reflect Phase 2 (secured) ASR — see Section 02 for full Phase 1 → Phase 2 delta.</p>
     <table class="provider-table" style="margin-top: 20px;">
       <thead>
         <tr>
@@ -315,7 +502,7 @@
 
   <!-- FINDINGS -->
   <div class="report-section">
-    <h2><span class="section-num">03</span> Findings</h2>
+    <h2><span class="section-num">04</span> Findings</h2>
     <p style="margin-bottom: 20px;">Four findings were identified during this engagement. Finding F-001 is informational (no execution gate failure). Findings F-002 through F-004 are observational and require no immediate remediation.</p>
 
     <div class="finding">
@@ -394,7 +581,7 @@
 
   <!-- COMPLIANCE MATRIX -->
   <div class="report-section">
-    <h2><span class="section-num">04</span> Compliance Evidence Matrix</h2>
+    <h2><span class="section-num">05</span> Compliance Evidence Matrix</h2>
     <p style="margin-bottom:20px;">RTK-1 automatically maps every engagement to six regulatory frameworks simultaneously. The following matrix documents the evidence generated by this engagement for regulatory submission.</p>
     <table class="compliance-matrix">
       <thead>
@@ -502,7 +689,7 @@
 
   <!-- REMEDIATION ROADMAP -->
   <div class="report-section">
-    <h2><span class="section-num">05</span> Remediation Roadmap</h2>
+    <h2><span class="section-num">06</span> Remediation Roadmap</h2>
     <p style="margin-bottom: 20px;">Findings are prioritized by risk and assigned to implementation windows. RTK-1 provides blast radius scores and patch confidence ratings for each recommendation.</p>
     <div class="remediation-item">
       <div class="rem-timeline">IMMEDIATE</div>
@@ -536,7 +723,7 @@
 
   <!-- SIGNATURE BLOCK -->
   <div class="report-section">
-    <h2><span class="section-num">06</span> Cryptographic Integrity</h2>
+    <h2><span class="section-num">07</span> Cryptographic Integrity</h2>
     <p style="margin-bottom: 20px;">Every RTK-1 report is cryptographically signed with SHA-256 HMAC. The signature below provides tamper detection and constitutes an immutable audit trail for regulatory submissions. To verify this report, use the <code style="font-family:var(--mono);font-size:13px;color:var(--blue);">GET /api/v1/redteam/verify/{job_id}</code> endpoint.</p>
     <div class="sig-block">
       <div class="sig-title">✓ SHA-256 HMAC — Report Integrity Verified</div>
@@ -544,11 +731,14 @@
       <div class="sig-row"><div class="sig-key">Target System:</div><div class="sig-val">Enterprise LLM API v3.0 (SAMPLE)</div></div>
       <div class="sig-row"><div class="sig-key">Campaign Start:</div><div class="sig-val">2026-04-13 00:00:00 UTC</div></div>
       <div class="sig-row"><div class="sig-key">Campaign End:</div><div class="sig-val">2026-04-16 00:00:00 UTC</div></div>
-      <div class="sig-row"><div class="sig-key">Total Sequences:</div><div class="sig-val">685</div></div>
-      <div class="sig-row"><div class="sig-key">Final ASR:</div><div class="sig-val">3.2%</div></div>
+      <div class="sig-row"><div class="sig-key">Total Sequences:</div><div class="sig-val">685 (Phase 1) + 685 (Phase 2) = 1,370</div></div>
+      <div class="sig-row"><div class="sig-key">Phase 1 ASR:</div><div class="sig-val" style="color:var(--red); font-weight:700;">87.4% — C1 (BASELINE — undefended)</div></div>
+      <div class="sig-row"><div class="sig-key">Phase 2 ASR:</div><div class="sig-val" style="color:var(--green); font-weight:700;">3.2% — C2 (SECURED — enforcement active)</div></div>
+      <div class="sig-row"><div class="sig-key">Delta:</div><div class="sig-val" style="color:var(--orange); font-weight:700;">−84.2 percentage points</div></div>
       <div class="sig-row"><div class="sig-key">Overall Verdict:</div><div class="sig-val" style="color:var(--green);font-weight:700;">C2 — NO EXECUTION PATH FOUND (PASS)</div></div>
       <div class="sig-row"><div class="sig-key">RTK-1 Version:</div><div class="sig-val">v0.5.0 · 95/95 objectives · 28/28 tests</div></div>
-      <div class="sig-row"><div class="sig-key">SHA-256 Digest:</div><div class="sig-val hash">a3f8c2d1e947b6f20384c59a1d72e8b4f093c6d21e85a4b7c390f124e578d3b9</div></div>
+      <div class="sig-row"><div class="sig-key">Phase 1 SHA-256:</div><div class="sig-val hash">f4b7e092a3c5d168e205b9d4a8c7613f594e082b6d3a17c489f25ae67cd874ea91b8c3</div></div>
+      <div class="sig-row"><div class="sig-key">Phase 2 SHA-256:</div><div class="sig-val hash">a3f8c2d1e947b6f20384c59a1d72e8b4f093c6d21e85a4b7c390f124e578d3b9</div></div>
       <div class="sig-row"><div class="sig-key">HMAC-SHA256:</div><div class="sig-val hash">7b2c94e1f038a65d12847c3b9f261e05d4a8b7c390f124e578d3b9a3f8c2d1e9</div></div>
       <div class="sig-row"><div class="sig-key">Signed By:</div><div class="sig-val">RTK Security Labs · ramon@rtksecuritylabs.com · OWASP Member</div></div>
     </div>
@@ -556,7 +746,7 @@
 
   <!-- ABOUT RTK-1 -->
   <div class="report-section">
-    <h2><span class="section-num">07</span> About RTK-1</h2>
+    <h2><span class="section-num">08</span> About RTK-1</h2>
     <p>RTK-1 is the first autonomous AI red teaming platform combining Claude Sonnet 4.6 + LangGraph + PyRIT 0.12.0 + Garak 0.14.1 + CrewAI. It runs the equivalent output of 15 specialized red team professionals 24/7, generating EU AI Act + NIST AI RMF + OWASP LLM Top 10 + MITRE ATLAS compliance evidence automatically for enterprise clients.</p>
     <p>Built by Ramon Loya, Founder of RTK Security Labs — OWASP Member in Good Standing. All reports are SHA-256 signed with HMAC for tamper detection. On-premises deployment available — no cloud dependency, full data sovereignty maintained.</p>
     <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:20px;">
@@ -567,7 +757,7 @@
   </div>
 
   <div class="disclaimer">
-    <strong>SAMPLE REPORT NOTICE:</strong> All client names, system names, and engagement details in this report are fictional and used for demonstration purposes only. No real organization's data is represented. RTK-1 methodology, attack provider architecture, C1/C2 execution gate framework, and report format are proprietary trade secrets of RTK Security Labs protected under 18 U.S.C. § 1836 (Defend Trade Secrets Act) and Tex. Civ. Prac. &amp; Rem. Code § 134A (Texas Uniform Trade Secrets Act). Unauthorized reproduction or commercial use is prohibited. OWASP® is a registered trademark of the OWASP Foundation. MITRE ATLAS™ is a trademark of The MITRE Corporation. © 2026 RTK Security Labs. All rights reserved. Contact: ramon@rtksecuritylabs.com · rtksecuritylabs.com
+    <strong>SAMPLE REPORT NOTICE:</strong> All client names, system names, and engagement details in this report are fictional and used for demonstration purposes only. No real organization's data is represented. RTK-1 methodology, attack provider architecture, C1/C2 execution gate framework, Phase 1/Phase 2 delta methodology, and report format are proprietary trade secrets of RTK Security Labs protected under 18 U.S.C. § 1836 (Defend Trade Secrets Act) and Tex. Civ. Prac. &amp; Rem. Code § 134A (Texas Uniform Trade Secrets Act). Unauthorized reproduction or commercial use is prohibited. OWASP® is a registered trademark of the OWASP Foundation. MITRE ATLAS™ is a trademark of The MITRE Corporation. © 2026 RTK Security Labs. All rights reserved. Contact: ramon@rtksecuritylabs.com · rtksecuritylabs.com
   </div>
 
 </div>
