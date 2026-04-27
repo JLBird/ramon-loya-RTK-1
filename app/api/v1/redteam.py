@@ -804,6 +804,160 @@ async def run_neutrality_check(
 
 
 # ========================
+# RIYADH CHARTER COMPLIANCE REPORT (Objective ME-01)
+# ========================
+
+
+@router.post("/redteam/riyadh-compliance-report")
+async def run_riyadh_compliance_report(
+    request: RedTeamRequest,
+    customer_id: str = "default",
+    sovereign_hosting_mode: Optional[
+        str
+    ] = None,  # "private_hub" | "extended_hub" | "virtual_hub"
+    bilingual_delivery: bool = False,
+):
+    """
+    Middle East & Islamic World compliance report.
+
+    Orchestrates a Crescendo campaign + runs NeutralityProvider with
+    islamic_values=True + applies the Riyadh Charter / SDAIA / MOAI / DIFC /
+    ADGM / ALECSO / KSA+UAE PDPL / ISO 42001 mapping.
+
+    Returns a single signed evidence package suitable for vendor qualification
+    in Saudi Arabia (SDAIA Self-Assessment), the UAE (MOAI AI Seal), DIFC,
+    ADGM, and the broader 53-state ICESCO membership.
+    """
+    try:
+        from app.core.compliance_riyadh import compliance_riyadh_mapper
+        from app.providers.neutrality_provider import NeutralityProvider
+
+        ATTACKS_TOTAL.inc()
+        start_time = time.time()
+
+        audit.log(
+            AuditEventType.CAMPAIGN_STARTED,
+            actor="api",
+            payload={
+                "target_model": request.target_model,
+                "goal": request.goal,
+                "attack_type": request.attack_type,
+                "customer_id": customer_id,
+                "endpoint": "riyadh-compliance-report",
+                "sovereign_hosting_mode": sovereign_hosting_mode,
+                "bilingual_delivery": bilingual_delivery,
+            },
+        )
+
+        # 1. Run the Crescendo campaign via the orchestrator graph
+        campaign_result = await _invoke_graph(request)
+        job_id = campaign_result["job_id"]
+        overall_asr = campaign_result.get("asr", 0.0)
+
+        latency = time.time() - start_time
+        LATENCY_HISTOGRAM.observe(latency)
+        ASR_GAUGE.set(overall_asr)
+
+        # 2. Run NeutralityProvider with islamic_values layer enabled
+        neutrality_provider = NeutralityProvider()
+        neutrality_report = await neutrality_provider.run_neutrality_check(
+            target_model=request.target_model,
+            islamic_values=True,
+        )
+
+        # 3. Apply the Riyadh Charter mapping
+        # Tools exercised in this campaign:
+        # - "pyrit" (crescendo via _invoke_graph)
+        # - "neutrality" + "islamic_values" (this endpoint always runs both)
+        tools_exercised = ["pyrit", "neutrality", "islamic_values"]
+
+        riyadh_report = compliance_riyadh_mapper.map_campaign_to_riyadh(
+            job_id=job_id,
+            target_model=request.target_model,
+            tools_exercised=tools_exercised,
+            overall_asr=overall_asr,
+            islamic_values_score=neutrality_report.islamic_values_score,
+            sovereign_hosting_mode=sovereign_hosting_mode,
+            bilingual_delivery=bilingual_delivery,
+        )
+
+        # 4. Generate companion pre-fill packages
+        sdaia_prefill = compliance_riyadh_mapper.map_to_sdaia_self_assessment(
+            target_model=request.target_model,
+            overall_asr=overall_asr,
+            tools_exercised=tools_exercised,
+        )
+        moai_prefill = compliance_riyadh_mapper.map_to_moai_seal(
+            target_model=request.target_model,
+            overall_asr=overall_asr,
+            tools_exercised=tools_exercised,
+        )
+
+        audit.log(
+            AuditEventType.CAMPAIGN_COMPLETED,
+            actor="api",
+            payload={
+                "asr": overall_asr,
+                "riyadh_compliant": riyadh_report.riyadh_compliant,
+                "principles_exercised": riyadh_report.principles_exercised,
+                "islamic_values_score": neutrality_report.islamic_values_score,
+                "latency_seconds": round(latency, 2),
+            },
+            job_id=job_id,
+        )
+
+        logger.info(
+            "riyadh_compliance_report_completed",
+            job_id=job_id,
+            asr=overall_asr,
+            riyadh_compliant=riyadh_report.riyadh_compliant,
+            principles_exercised=riyadh_report.principles_exercised,
+            islamic_values_score=neutrality_report.islamic_values_score,
+            sovereign_hosting_mode=sovereign_hosting_mode,
+        )
+
+        return {
+            "job_id": job_id,
+            "target_model": request.target_model,
+            "goal": request.goal,
+            "overall_asr": overall_asr,
+            "c2_pass": riyadh_report.c2_pass,
+            "riyadh_compliant": riyadh_report.riyadh_compliant,
+            "principles_exercised": riyadh_report.principles_exercised,
+            "principles": [p.model_dump() for p in riyadh_report.principles],
+            "frameworks": [f.model_dump() for f in riyadh_report.frameworks],
+            "sdaia_self_assessment_prefill_pct": riyadh_report.sdaia_self_assessment_prefill_pct,
+            "moai_seal_prefill_pct": riyadh_report.moai_seal_prefill_pct,
+            "sovereign_hosting_mode": riyadh_report.sovereign_hosting_mode,
+            "bilingual_delivery_available": riyadh_report.bilingual_delivery_available,
+            "neutrality_summary": {
+                "neutrality_score": neutrality_report.neutrality_score,
+                "gsa_compliant": neutrality_report.gsа_compliant,
+                "islamic_values_score": neutrality_report.islamic_values_score,
+                "islamic_values_failed": neutrality_report.islamic_values_failed,
+                "tests_run": neutrality_report.tests_run,
+                "tests_failed": neutrality_report.tests_failed,
+            },
+            "sdaia_self_assessment_prefill": sdaia_prefill,
+            "moai_seal_prefill": moai_prefill,
+            "summary": riyadh_report.summary,
+            "report_link": f"{settings.base_url}/reports/{job_id}.pdf",
+            "status": "completed",
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error("riyadh_compliance_report_failed", error=str(e))
+        audit.log(
+            AuditEventType.CAMPAIGN_FAILED,
+            actor="api",
+            payload={"error": str(e), "endpoint": "riyadh-compliance-report"},
+        )
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ========================
 # DUAL MODEL VALIDATION (Objective 76)
 # ========================
 

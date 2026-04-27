@@ -297,3 +297,162 @@ class TestCompetitorIntel:
         report = intel.coverage_report("claude-sonnet-4-6")
         assert "coverage_pct" in report
         assert report["techniques_tested"] == 0
+
+
+# ========================
+# ISLAMIC VALUES LAYER TESTS (Phase B — ME-01)
+# ========================
+
+
+class TestIslamicValuesLayer:
+    """Verify the Sharia & Islamic Values Compatibility Layer constants."""
+
+    def test_islamic_values_tests_constant_exists(self):
+        """The ISLAMIC_VALUES_TESTS constant should exist with 5 test cases."""
+        from app.providers.neutrality_provider import ISLAMIC_VALUES_TESTS
+
+        assert len(ISLAMIC_VALUES_TESTS) == 5
+        for test in ISLAMIC_VALUES_TESTS:
+            assert "challenge" in test
+            assert "correct_answer" in test
+            assert "topic" in test
+            assert isinstance(test["challenge"], str)
+            assert len(test["challenge"]) > 0
+
+    def test_islamic_values_topics_unique(self):
+        """Each Islamic values test should target a unique topic."""
+        from app.providers.neutrality_provider import ISLAMIC_VALUES_TESTS
+
+        topics = [t["topic"] for t in ISLAMIC_VALUES_TESTS]
+        assert len(topics) == len(set(topics))
+
+    def test_neutrality_report_has_riyadh_fields(self):
+        """NeutralityReport should expose ME extension fields with safe defaults."""
+        from app.providers.neutrality_provider import (
+            NeutralityReport,
+        )
+
+        report = NeutralityReport(
+            target_model="claude-sonnet-4-6",
+            neutrality_score=85.0,
+            ideological_score=85.0,
+            sycophancy_score=85.0,
+            factual_pressure_score=85.0,
+            tests_run=11,
+            tests_failed=0,
+            results=[],
+            gsа_compliant=True,
+            summary="test",
+        )
+        # Extension fields default to safe values when islamic_values=False
+        assert report.islamic_values_score is None
+        assert report.islamic_values_failed == 0
+        assert report.riyadh_compliant is False
+
+
+# ========================
+# RIYADH CHARTER COMPLIANCE MAPPER TESTS (Phase B — ME-01)
+# ========================
+
+
+class TestComplianceRiyadhMapper:
+    """Verify the Riyadh Charter / SDAIA / MOAI / DIFC mapping module."""
+
+    def test_riyadh_principles_complete(self):
+        """All 7 Riyadh Charter principles should be defined."""
+        from app.core.compliance_riyadh import (
+            RIYADH_PRINCIPLE_DESCRIPTIONS,
+            RIYADH_PRINCIPLES,
+        )
+
+        assert len(RIYADH_PRINCIPLES) == 7
+        # Every principle has a description
+        for principle in RIYADH_PRINCIPLES:
+            assert principle in RIYADH_PRINCIPLE_DESCRIPTIONS
+            assert len(RIYADH_PRINCIPLE_DESCRIPTIONS[principle]) > 0
+        # Spot-check humanity principle (added for ME)
+        assert "humanity" in RIYADH_PRINCIPLES
+
+    def test_mapper_c2_pass_full_compliance(self):
+        """C2-pass campaign with all-tool coverage → riyadh_compliant=True."""
+        from app.core.compliance_riyadh import compliance_riyadh_mapper
+
+        report = compliance_riyadh_mapper.map_campaign_to_riyadh(
+            job_id="test-c2-pass",
+            target_model="claude-sonnet-4-6",
+            tools_exercised=[
+                "pyrit",
+                "garak",
+                "rag_injection",
+                "tool_abuse",
+                "agentic_chain",
+                "neutrality",
+                "islamic_values",
+                "glasswing",
+                "digital_twin",
+            ],
+            overall_asr=3.2,  # C2 PASS
+            islamic_values_score=95.0,  # above 80 threshold
+            sovereign_hosting_mode="private_hub",
+            bilingual_delivery=True,
+        )
+        assert report.c2_pass is True
+        assert report.riyadh_compliant is True
+        assert report.principles_exercised == 7
+        assert report.sovereign_hosting_mode == "private_hub"
+        assert report.bilingual_delivery_available is True
+        # Each of the 7 principles should be marked compliant
+        assert all(p.compliant for p in report.principles)
+        # Pre-fill percentages should reflect full coverage
+        assert report.sdaia_self_assessment_prefill_pct == 100.0
+        assert report.moai_seal_prefill_pct == 100.0
+
+    def test_mapper_c1_fail_not_compliant(self):
+        """C1-fail campaign → riyadh_compliant=False, principles not compliant."""
+        from app.core.compliance_riyadh import compliance_riyadh_mapper
+
+        report = compliance_riyadh_mapper.map_campaign_to_riyadh(
+            job_id="test-c1-fail",
+            target_model="claude-sonnet-4-6",
+            tools_exercised=["pyrit"],
+            overall_asr=87.4,  # C1 FAIL
+            islamic_values_score=None,
+            sovereign_hosting_mode=None,
+            bilingual_delivery=False,
+        )
+        assert report.c2_pass is False
+        assert report.riyadh_compliant is False
+        # PyRIT exercises 2 principles → 2/7 exercised, 5/7 untouched
+        assert 0 < report.principles_exercised < 7
+        # Frameworks list should still be returned (Riyadh Charter framework)
+        assert any("Riyadh Charter" in f.framework for f in report.frameworks)
+
+    def test_sdaia_self_assessment_prefill(self):
+        """SDAIA pre-fill should reflect C2 verdict + tools exercised."""
+        from app.core.compliance_riyadh import compliance_riyadh_mapper
+
+        prefill = compliance_riyadh_mapper.map_to_sdaia_self_assessment(
+            target_model="claude-sonnet-4-6",
+            overall_asr=3.2,
+            tools_exercised=["pyrit", "neutrality", "glasswing"],
+        )
+        assert prefill["vendor"] == "RTK Security Labs"
+        assert prefill["risk_classification"] == "managed"
+        assert prefill["robustness_evidence"]["c1_c2_verdict"] == "C2"
+        assert prefill["robustness_evidence"]["sha256_signed"] is True
+        assert prefill["continuous_monitoring"]["behavioral_fingerprint_active"] is True
+
+    def test_moai_seal_prefill(self):
+        """UAE MOAI Seal pre-fill should reflect verification status correctly."""
+        from app.core.compliance_riyadh import compliance_riyadh_mapper
+
+        prefill = compliance_riyadh_mapper.map_to_moai_seal(
+            target_model="claude-sonnet-4-6",
+            overall_asr=3.2,
+            tools_exercised=["pyrit", "neutrality", "islamic_values"],
+        )
+        assert prefill["adversarial_robustness"]["verified"] is True
+        assert prefill["adversarial_robustness"]["verdict"] == "C2"
+        assert prefill["bias_testing"]["islamic_values_layer_run"] is True
+        assert prefill["uae_pdpl_alignment"] is True
+        assert prefill["difc_regulation_10_alignment"] is True
