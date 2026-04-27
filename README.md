@@ -341,6 +341,12 @@ RTK-1's `ISAC-Transporter` module maps campaign results to the DHS AI-ISAC schem
 
 </details>
 
+<details>
+<summary><strong>Riyadh Charter on AI · SDAIA · MOAI · DIFC · ADGM · ALECSO · KSA + UAE PDPL · ISO 42001</strong></summary>
+
+  ---
+
+## 🌙 Middle East & Islamic World
 ---
 
 ## Test Results
