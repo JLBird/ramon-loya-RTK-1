@@ -15,8 +15,8 @@
 [![LangGraph](https://img.shields.io/badge/LangGraph-Stateful-FF6B35?style=for-the-badge&logo=langchain&logoColor=white)]()
 [![Claude Sonnet 4.6](https://img.shields.io/badge/Claude-Sonnet_4.6-CC785C?style=for-the-badge&logo=anthropic&logoColor=white)]()
 
-[![Tests](https://img.shields.io/badge/Tests-20%2F20_Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)]()
-[![Endpoints](https://img.shields.io/badge/Endpoints-26_Live-brightgreen?style=for-the-badge)]()
+[![Tests](https://img.shields.io/badge/Tests-28%2F28_Passing-brightgreen?style=for-the-badge&logo=pytest&logoColor=white)]()
+[![Endpoints](https://img.shields.io/badge/Endpoints-27_Live-brightgreen?style=for-the-badge)]()
 [![Providers](https://img.shields.io/badge/Attack_Providers-13_Active-brightgreen?style=for-the-badge)]()
 [![Version](https://img.shields.io/badge/Version-0.5.0-blue?style=for-the-badge)]()
 [![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)]()
@@ -352,7 +352,7 @@ RTK-1's `ISAC-Transporter` module maps campaign results to the DHS AI-ISAC schem
 ## Test Results
 
 ```
-20 passed in 0.54s
+28 passed in 6.13s
 Platform: Python 3.12 · pytest
 Coverage: DeterministicScorer · MutationEngine · RateLimiter
           DeliveryManager · DomainModels · ProviderAvailability
@@ -478,7 +478,7 @@ RTK-1 is designed for **authorized security testing only**. All campaigns requir
 
 <div align="center">
 
-**RTK-1 v0.5.0** · Claude Sonnet 4.6 · LangGraph · PyRIT 0.12.0 · 13 Attack Providers · 26 Endpoints
+**RTK-1 v0.5.0** · Claude Sonnet 4.6 · LangGraph · PyRIT 0.12.0 · 13 Attack Providers · 27 Endpoints
 
 *Built by Ramon Loya — RTK Security Labs · New Braunfels, Texas*
 
